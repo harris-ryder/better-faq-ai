@@ -1,125 +1,97 @@
-import axios from "axios";
 import lodash from "lodash";
-import OpenAI from "openai";
 import dotenv from "dotenv";
-import { getWebflowPages } from "./utils.js";
+import {
+  getWebflowPaginatiomItems,
+  WebflowApiRequest,
+} from "./webflow-utils.js";
+import { Webflow } from "webflow-api";
 dotenv.config();
 
 const { OPENAI_API_KEY, WEBFLOW_TOKEN } = process.env;
-// Do recursive calls
+const webflowToken = WEBFLOW_TOKEN as string;
+let collectionId = null;
+const collectionDisplayName = "better-faqs";
+const collectionSingularName = "better-faq";
+
 // Rate limiter
 // Webhooks
-
-const apiKey = OPENAI_API_KEY;
-
-const openai = new OpenAI({
-  apiKey,
-});
-
-const headers = {
-  Authorization: `Bearer ${WEBFLOW_TOKEN}`,
-};
+// Question: How to handle errors
 
 (async () => {
-  // Get site id
   const {
-    data: {
-      sites: [{ id: siteId }],
-    },
-  } = await axios.get(`https://api.webflow.com/v2/sites`, {
-    headers,
+    sites: [{ id: siteId }],
+  } = await WebflowApiRequest<any>({
+    // Question:Stuck with the <any>...Am I supposed to write the structure of the response object??
+    path: `/v2/sites`,
+    token: webflowToken,
   });
+  console.log({ siteId });
 
   // List pages
-  //   const {
-  //     data: { pages },
-  //   } = await axios.get(`https://api.webflow.com/v2/sites/${siteId}/pages`, {
-  //     headers,
-  //   });
-
-  const pages = await getWebflowPages({
-    siteId,
-    token: WEBFLOW_TOKEN as string,
+  const pages = await getWebflowPaginatiomItems({
+    path: `/v2/sites/${siteId}/pages`,
+    token: webflowToken,
+    iterableObject: "pages",
   });
-
-  console.log({ pages });
+  console.log(pages.length);
 
   // Get Dom nodes
-  const pagesDomNodes = (
-    await Promise.all(
-      pages.map(
-        async ({ id: pageId }: any) =>
-          await axios.get(`https://api.webflow.com/v2/pages/${pageId}/dom`, {
-            headers,
-          })
-      )
+  const pagesDomNodes = await Promise.all(
+    pages.map(
+      async ({ id: pageId }: any) =>
+        await getWebflowPaginatiomItems({
+          path: `/v2/pages/${pageId}/dom`,
+          token: webflowToken,
+          iterableObject: "nodes",
+        })
     )
-  )
-    .map(({ data }) => data)
-    .filter(({ nodes }) => nodes.length > 0)
-    .map(({ nodes }) => nodes);
+  );
 
   // Get array of text extracted from dom nodes
   const pagesText = lodash
     .flattenDeep(pagesDomNodes)
     .filter(({ type }) => type === "text")
     .map(({ text: { text } }) => text);
+  console.log({ pagesText });
 
-  const {
-    choices: [
-      {
-        message: { content },
-      },
-    ],
-  } = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0,
-    response_format: {
-      type: "json_schema",
-      json_schema: {
-        name: "faq",
-        schema: {
-          type: "object",
-          properties: {
-            responses: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  question: {
-                    type: "string",
-                  },
-                  answer: {
-                    type: "string",
-                  },
-                },
-                required: ["question", "answer"],
-              },
-            },
-          },
-          required: ["responses"],
-        },
-      },
-    },
-    messages: [
-      {
-        role: "system",
-        content: [
-          "As a helpful assistant, your task is to create a frequently asked questions (FAQ) list and provide detailed, accurate answers for each question.",
-          "The FAQ should cover common inquiries related to a specific topic or area of interest, and the answers should be informative and helpful to users seeking information.",
-          "Your response should include a well-organized list of questions and their corresponding answers, addressing a range of relevant topics or issues.",
-          "Each answer should be clear, concise, and provide valuable information that addresses the user's potential queries.",
-          "You should aim to anticipate the needs of users and provide comprehensive responses that cover a variety of aspects related to the topic.",
-          "Please ensure that the FAQ list and answers are structured in a user-friendly format, making it easy for individuals to find the information they need.",
-          "Additionally, the responses should be written in a friendly and approachable tone, creating a positive user experience and fostering trust in the information provided.",
-          "Your FAQ list and answers should be flexible and adaptable to different contexts or settings, allowing for a variety of relevant and informative questions and responses.",
-          "Please arrange the list of questions in descending order based on their frequency of being asked by customers. Your response should present the questions in a manner that reflects the most commonly asked questions first, followed by the less frequently asked ones. Ensure that the order accurately represents the frequency of customer inquiries and allows for easy identification of the most common questions.",
-        ].join("\n"),
-      },
-      {
-        role: "user",
-        content: `${pagesText.join("\n")}`,
-      },
-    ],
+  // Check if faq named collection exists
+  const { collections } = await WebflowApiRequest<any>({
+    path: `/v2/sites/${siteId}/collections`,
+    token: webflowToken,
   });
+
+  const faqCollection = collections.find(
+    (collection: { displayName: string }) =>
+      collection.displayName === collectionDisplayName
+  );
+  collectionId = faqCollection ? faqCollection.id : null;
+  console.log({ collectionId });
+
+  // Generate fresh faqs by calling openai
+  // const faqs = await openAIApiRequest(pagesText);
+  // console.log(faqs);
+
+  // If collectionId null create a new collection
+  if (!collectionId) {
+    const { newCollectionId } = await WebflowApiRequest<any>({
+      path: `/v2/sites/${siteId}/collections`,
+      token: webflowToken,
+      body: {
+        displayName: collectionDisplayName,
+        singularName: collectionSingularName,
+      },
+    });
+    console.log("newCollection", newCollectionId);
+
+    const answerFieldId = await WebflowApiRequest<any>({
+      path: `/v2/collections/${newCollectionId}/fields`,
+      token: webflowToken,
+      body: {
+        type: Webflow.FieldType.PlainText,
+        displayName: "question",
+        isRequired: true,
+      },
+    });
+    console.log("ho", answerFieldId);
+  }
 })();

@@ -1,44 +1,43 @@
 import axios from "axios";
 import dotenv from "dotenv";
-import { WEBFLOW_API_URL } from "./constants";
+import { WEBFLOW_API_URL } from "./constants.js";
 dotenv.config();
 
 const { WEBFLOW_TOKEN } = process.env;
 // Recursively call site pages
 interface getWebflowCmsItemsParams {
-  siteId: string;
   token: string;
   offset?: number;
   batchSize?: number;
+  path: string;
+  iterableObject: string;
 }
 
-export const getWebflowPages = async (
+export const getWebflowPaginatiomItems = async (
   params: getWebflowCmsItemsParams
 ): Promise<any> => {
   const offset = params.offset || 0;
-  const { data } = await axios.get(
-    `${WEBFLOW_API_URL}/v2/sites/${params.siteId}/pages?offset=${offset}`,
-    {
-      headers: {
-        Authorization: `Bearer ${WEBFLOW_TOKEN}`,
-      },
-    }
-  );
-
-  if (data.pages.length + data.pagination.offset < data.pagination.total) {
+  const data = await WebflowApiRequest<any>({
+    // path: `/v2/sites/${params.siteId}/pages?offset=${offset}`,
+    path: `${params.path}?offset=${offset}`,
+    token: params.token,
+  });
+  if (
+    data[params.iterableObject].length + data.pagination.offset <
+    data.pagination.total
+  ) {
     return [
-      ...data.pages,
-      ...(await getWebflowPages({
+      ...data[params.iterableObject],
+      ...(await getWebflowPaginatiomItems({
         ...params,
         offset: offset + data.pagination.limit,
       })),
     ];
   }
-  return data.pages;
+  return data[params.iterableObject];
 };
 
 // Webflow api request function
-
 interface WebflowApiRequestParams {
   path: string;
   token: string;

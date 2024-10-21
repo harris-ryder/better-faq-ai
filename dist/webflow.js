@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import { WEBFLOW_API_URL } from "./constants.js";
 dotenv.config();
 const { WEBFLOW_TOKEN } = process.env;
-export const getWebflowCmsItems = async (params) => {
+export const getWebflowPaginatiomItems = async (params) => {
     const offset = params.offset || 0;
     const data = await WebflowApiRequest({
         // path: `/v2/sites/${params.siteId}/pages?offset=${offset}`,
@@ -13,7 +13,7 @@ export const getWebflowCmsItems = async (params) => {
         data.pagination.total) {
         return [
             ...data[params.iterableObject],
-            ...(await getWebflowCmsItems({
+            ...(await getWebflowPaginatiomItems({
                 ...params,
                 offset: offset + data.pagination.limit,
             })),
@@ -65,4 +65,4 @@ export const WebflowApiRequest = async (params) => {
 //     throw new Error(`webflow api error ${JSON.stringify(error)}`);
 //   }
 // };
-//# sourceMappingURL=utils.js.map
+//# sourceMappingURL=webflow.js.map
