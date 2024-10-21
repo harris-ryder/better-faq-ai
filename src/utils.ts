@@ -1,9 +1,10 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import { WEBFLOW_API_URL } from "./constants";
 dotenv.config();
 
-const { WEBFLOW_API_URL, WEBFLOW_TOKEN } = process.env;
-
+const { WEBFLOW_TOKEN } = process.env;
+// Recursively call site pages
 interface getWebflowCmsItemsParams {
   siteId: string;
   token: string;
@@ -36,6 +37,8 @@ export const getWebflowPages = async (
   return data.pages;
 };
 
+// Webflow api request function
+
 interface WebflowApiRequestParams {
   path: string;
   token: string;
@@ -43,14 +46,9 @@ interface WebflowApiRequestParams {
   body?: Record<string, unknown>;
 }
 
-export const webflowApiRequest = async <T>(
+export const WebflowApiRequest = async <T>(
   params: WebflowApiRequestParams
 ): Promise<T> => {
-  //   logger.trace(`sending webflow api request to ${params.path}`);
-  //   const remainingPoints = await rateLimiterQueue.removeTokens(1, params.token);
-  //   logger.trace(
-  //     `webflowApiRequest: token ${params.token} has ${remainingPoints} remaining points`
-  //   );
   const { path, token, body } = params;
   const method = params.method || (body ? "post" : "get");
   const url = `${WEBFLOW_API_URL}${path}`;
@@ -59,47 +57,44 @@ export const webflowApiRequest = async <T>(
     body: typeof body === "object" ? JSON.stringify(body) : body,
     headers: {
       "Content-Type": "application/json",
-      authorization: `Bearer ${WEBFLOW_TOKEN}`,
+      authorization: `Bearer ${token}`,
       "accept-version": "1.0.0",
     },
-    // timeout: 60_000,
   });
 
   if (response.status >= 400) {
     if (response.status === 401) {
-      //   const site = await knex("sites")
-      //     .where({ webflow_token: params.token })
-      //     .first();
-      //   if (!site) {
-      //     throw new Error(`webflowApiRequest site not found`);
-      //   }
+      throw new Error(`Unauthorized`);
     }
     throw new Error(`HTTP ${response.status}: ${await response.text()}`);
   }
-
   const results = await response.json();
-  checkError(results);
   return results as T;
 };
 
-// Error handling
+//   const results = await response.json();
+//   checkError(results);
+//   return results as T;
+// };
 
-interface WebflowResponseError {
-  err?: string;
-  error?: string;
-  message?: string;
-}
-const isError = (results: object): results is WebflowResponseError =>
-  "err" in results || "error" in results;
+// // Error handling
 
-export const checkError = (results: object): void => {
-  if (!isError(results)) {
-    return;
-  }
-  const error = results.err || results.error || results.message;
+// interface WebflowResponseError {
+//   err?: string;
+//   error?: string;
+//   message?: string;
+// }
+// const isError = (results: object): results is WebflowResponseError =>
+//   "err" in results || "error" in results;
 
-  if (error) {
-    // logger.error({ results, error });
-    throw new Error(`webflow api error ${JSON.stringify(error)}`);
-  }
-};
+// export const checkError = (results: object): void => {
+//   if (!isError(results)) {
+//     return;
+//   }
+//   const error = results.err || results.error || results.message;
+
+//   if (error) {
+//     // logger.error({ results, error });
+//     throw new Error(`webflow api error ${JSON.stringify(error)}`);
+//   }
+// };
