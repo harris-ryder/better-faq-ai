@@ -2,9 +2,9 @@ import axios from "axios";
 import lodash from "lodash";
 import OpenAI from "openai";
 import dotenv from "dotenv";
+import { getWebflowPages } from "./utils.js";
 dotenv.config();
 const { OPENAI_API_KEY, WEBFLOW_TOKEN } = process.env;
-// Rewrite
 // Do recursive calls
 // Rate limiter
 // Webhooks
@@ -15,27 +15,34 @@ const openai = new OpenAI({
 const headers = {
     Authorization: `Bearer ${WEBFLOW_TOKEN}`,
 };
-const { data: [{ id }], } = { data: [{ id: 1 }] };
 (async () => {
-    const { data: { sites: [{ id: siteId }], }, } = await axios.get("https://api.webflow.com/v2/sites", {
+    // Get site id
+    const { data: { sites: [{ id: siteId }], }, } = await axios.get(`https://api.webflow.com/v2/sites`, {
         headers,
     });
-    //   console.log({ siteId });
-    const { data: { pages }, } = await axios.get(`https://api.webflow.com/v2/sites/${siteId}/pages`, {
-        headers,
+    // List pages
+    //   const {
+    //     data: { pages },
+    //   } = await axios.get(`https://api.webflow.com/v2/sites/${siteId}/pages`, {
+    //     headers,
+    //   });
+    const pages = await getWebflowPages({
+        siteId,
+        token: WEBFLOW_TOKEN,
     });
-    //   console.log("DataPages:", pages);
-    const pagesDomNodes = (await Promise.all(pages.map(({ id: pageId }) => axios.get(`https://api.webflow.com/v2/pages/${pageId}/dom`, {
+    console.log({ pages });
+    // Get Dom nodes
+    const pagesDomNodes = (await Promise.all(pages.map(async ({ id: pageId }) => await axios.get(`https://api.webflow.com/v2/pages/${pageId}/dom`, {
         headers,
     }))))
         .map(({ data }) => data)
         .filter(({ nodes }) => nodes.length > 0)
         .map(({ nodes }) => nodes);
+    // Get array of text extracted from dom nodes
     const pagesText = lodash
         .flattenDeep(pagesDomNodes)
         .filter(({ type }) => type === "text")
         .map(({ text: { text } }) => text);
-    console.log({ pagesText });
     const { choices: [{ message: { content }, },], } = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         temperature: 0,
@@ -87,6 +94,5 @@ const { data: [{ id }], } = { data: [{ id: 1 }] };
             },
         ],
     });
-    console.log({ content });
 })();
 //# sourceMappingURL=index.js.map
