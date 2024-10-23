@@ -58,6 +58,6 @@ export const openAIApiRequest = async (websiteText) => {
             },
         ],
     });
-    return content;
+    return JSON.parse(content); // Question: need to add error management if not string
 };
 //# sourceMappingURL=openai.js.map

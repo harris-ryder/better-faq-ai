@@ -66,5 +66,5 @@ export const openAIApiRequest = async (websiteText: string[]) => {
       },
     ],
   });
-  return content;
+  return JSON.parse(content as string); // Question: need to add error management if not string
 };

@@ -2,6 +2,7 @@ import lodash from "lodash";
 import dotenv from "dotenv";
 import { getWebflowPaginatiomItems, WebflowApiRequest, } from "./webflow-utils.js";
 import { Webflow } from "webflow-api";
+import { openAIApiRequest } from "./openai.js";
 dotenv.config();
 const { OPENAI_API_KEY, WEBFLOW_TOKEN } = process.env;
 const webflowToken = WEBFLOW_TOKEN;
@@ -46,11 +47,11 @@ const collectionSingularName = "better-faq";
     collectionId = faqCollection ? faqCollection.id : null;
     console.log({ collectionId });
     // Generate fresh faqs by calling openai
-    // const faqs = await openAIApiRequest(pagesText);
-    // console.log(faqs);
+    const { responses } = await openAIApiRequest(pagesText);
+    console.log(responses);
     // If collectionId null create a new collection
     if (!collectionId) {
-        const { newCollectionId } = await WebflowApiRequest({
+        const newCollection = await WebflowApiRequest({
             path: `/v2/sites/${siteId}/collections`,
             token: webflowToken,
             body: {
@@ -58,9 +59,9 @@ const collectionSingularName = "better-faq";
                 singularName: collectionSingularName,
             },
         });
-        console.log("newCollection", newCollectionId);
-        const answerFieldId = await WebflowApiRequest({
-            path: `/v2/collections/${newCollectionId}/fields`,
+        console.log("newCollection", newCollection.id);
+        const questionField = await WebflowApiRequest({
+            path: `/v2/collections/${newCollection.id}/fields`,
             token: webflowToken,
             body: {
                 type: Webflow.FieldType.PlainText,
@@ -68,7 +69,38 @@ const collectionSingularName = "better-faq";
                 isRequired: true,
             },
         });
-        console.log("ho", answerFieldId);
+        const answerField = await WebflowApiRequest({
+            path: `/v2/collections/${newCollection.id}/fields`,
+            token: webflowToken,
+            body: {
+                type: Webflow.FieldType.PlainText,
+                displayName: "answer",
+                isRequired: true,
+            },
+        });
+        // Create items
+        let counter = 0;
+        for (const faq of responses) {
+            console.log(faq.question);
+            console.log(faq.answer);
+            await WebflowApiRequest({
+                path: `/v2/collections/${newCollection.id}/items`,
+                token: webflowToken,
+                body: {
+                    fieldData: {
+                        name: faq.question,
+                        question: faq.question,
+                        answer: faq.answer,
+                    },
+                },
+            });
+            console.log("---------------");
+            if (counter > 40) {
+                await new Promise((resolve) => setTimeout(resolve, 60000));
+                counter = 0;
+            }
+            counter++;
+        }
     }
 })();
 //# sourceMappingURL=index.js.map

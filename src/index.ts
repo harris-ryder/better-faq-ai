@@ -5,17 +5,18 @@ import {
   WebflowApiRequest,
 } from "./webflow-utils.js";
 import { Webflow } from "webflow-api";
+import { openAIApiRequest } from "./openai.js";
 dotenv.config();
 
 const { OPENAI_API_KEY, WEBFLOW_TOKEN } = process.env;
 const webflowToken = WEBFLOW_TOKEN as string;
-let collectionId = null;
 const collectionDisplayName = "better-faqs";
 const collectionSingularName = "better-faq";
 
 // Rate limiter
 // Webhooks
 // Question: How to handle errors
+// Zod for schema
 
 (async () => {
   const {
@@ -59,21 +60,29 @@ const collectionSingularName = "better-faq";
     path: `/v2/sites/${siteId}/collections`,
     token: webflowToken,
   });
-
+  // this needs to be a function getCollectionId
+  // if the collection doesn't exist, create it
+  // return the id
+  // note: always return early
   const faqCollection = collections.find(
     (collection: { displayName: string }) =>
       collection.displayName === collectionDisplayName
   );
-  collectionId = faqCollection ? faqCollection.id : null;
-  console.log({ collectionId });
 
+  const collectionId = faqCollection ? faqCollection.id : null;
+  console.log({ collectionId });
+  // -----
   // Generate fresh faqs by calling openai
-  // const faqs = await openAIApiRequest(pagesText);
-  // console.log(faqs);
+
+  // todo: split fn
+  const { responses } = await openAIApiRequest(pagesText);
+  console.log(responses);
 
   // If collectionId null create a new collection
+
+  // toodo; this will be part of the get collection fn
   if (!collectionId) {
-    const { newCollectionId } = await WebflowApiRequest<any>({
+    const newCollection = await WebflowApiRequest<any>({
       path: `/v2/sites/${siteId}/collections`,
       token: webflowToken,
       body: {
@@ -81,10 +90,11 @@ const collectionSingularName = "better-faq";
         singularName: collectionSingularName,
       },
     });
-    console.log("newCollection", newCollectionId);
+    console.log("newCollection", newCollection.id);
 
-    const answerFieldId = await WebflowApiRequest<any>({
-      path: `/v2/collections/${newCollectionId}/fields`,
+    // todo: include this is in getcollection
+    const questionField = await WebflowApiRequest<any>({
+      path: `/v2/collections/${newCollection.id}/fields`,
       token: webflowToken,
       body: {
         type: Webflow.FieldType.PlainText,
@@ -92,6 +102,43 @@ const collectionSingularName = "better-faq";
         isRequired: true,
       },
     });
-    console.log("ho", answerFieldId);
+    const answerField = await WebflowApiRequest<any>({
+      path: `/v2/collections/${newCollection.id}/fields`,
+      token: webflowToken,
+      body: {
+        type: Webflow.FieldType.PlainText,
+        displayName: "answer",
+        isRequired: true,
+      },
+    });
+
+    // Create items
+
+    // this doesn't work becasue you make calls to webflow before
+    // ignore rate limit for now
+    let counter = 0;
+    for (const faq of responses) {
+      console.log(faq.question);
+      console.log(faq.answer);
+
+      await WebflowApiRequest<any>({
+        path: `/v2/collections/${newCollection.id}/items`,
+        token: webflowToken,
+        body: {
+          fieldData: {
+            name: faq.question,
+            question: faq.question,
+            answer: faq.answer,
+          },
+        },
+      });
+
+      console.log("---------------");
+      if (counter > 40) {
+        await new Promise((resolve) => setTimeout(resolve, 60000));
+        counter = 0;
+      }
+      counter++;
+    }
   }
 })();
