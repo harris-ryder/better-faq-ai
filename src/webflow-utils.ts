@@ -1,6 +1,7 @@
 import axios from "axios";
 import dotenv from "dotenv";
 import { WEBFLOW_API_URL } from "./constants.js";
+import { Webflow } from "webflow-api";
 dotenv.config();
 
 const { WEBFLOW_TOKEN } = process.env;
@@ -45,6 +46,8 @@ interface WebflowApiRequestParams {
   body?: Record<string, unknown>;
 }
 
+// todo: use async.io queue to process one at a time per token (not global)
+// read x-ratelimit-remaining header and if is bellow e.g 5, pause for {retry-after} header secs
 export const WebflowApiRequest = async <T>(
   params: WebflowApiRequestParams
 ): Promise<T> => {
@@ -71,29 +74,68 @@ export const WebflowApiRequest = async <T>(
   return results as T;
 };
 
-//   const results = await response.json();
-//   checkError(results);
-//   return results as T;
-// };
+// this needs to be a function getCollectionId
+// if the collection doesn't exist, create it
+// return the id
+// note: always return early
+interface getCollectionIdParams {
+  siteId: string;
+  webflowToken: string;
+  collectionDisplayName?: string;
+  collectionSingularName?: string;
+}
+export const getCollectionId = async ({
+  siteId,
+  webflowToken,
+  collectionDisplayName = "better-faqs",
+  collectionSingularName = "better-faq",
+}: getCollectionIdParams): Promise<{ id: string; isNew: boolean }> => {
+  const { collections } = await WebflowApiRequest<any>({
+    path: `/v2/sites/${siteId}/collections`,
+    token: webflowToken,
+  });
 
-// // Error handling
+  const faqCollection = collections.find(
+    (collection: { displayName: string }) =>
+      collection.displayName === collectionDisplayName
+  );
 
-// interface WebflowResponseError {
-//   err?: string;
-//   error?: string;
-//   message?: string;
-// }
-// const isError = (results: object): results is WebflowResponseError =>
-//   "err" in results || "error" in results;
+  let collectionId = faqCollection ? faqCollection.id : null;
+  console.log({ collectionId });
 
-// export const checkError = (results: object): void => {
-//   if (!isError(results)) {
-//     return;
-//   }
-//   const error = results.err || results.error || results.message;
+  if (collectionId) return { id: collectionId, isNew: false };
 
-//   if (error) {
-//     // logger.error({ results, error });
-//     throw new Error(`webflow api error ${JSON.stringify(error)}`);
-//   }
-// };
+  // If collectionId null create a new collection
+  if (!collectionId) {
+    const newCollection = await WebflowApiRequest<any>({
+      path: `/v2/sites/${siteId}/collections`,
+      token: webflowToken,
+      body: {
+        displayName: collectionDisplayName,
+        singularName: collectionSingularName,
+      },
+    });
+    console.log("newCollection", newCollection.id);
+    collectionId = newCollection.id;
+    // todo: include this is in getcollection
+    const questionField = await WebflowApiRequest<any>({
+      path: `/v2/collections/${newCollection.id}/fields`,
+      token: webflowToken,
+      body: {
+        type: Webflow.FieldType.PlainText,
+        displayName: "question",
+        isRequired: true,
+      },
+    });
+    const answerField = await WebflowApiRequest<any>({
+      path: `/v2/collections/${newCollection.id}/fields`,
+      token: webflowToken,
+      body: {
+        type: Webflow.FieldType.PlainText,
+        displayName: "answer",
+        isRequired: true,
+      },
+    });
+  }
+  return { id: collectionId, isNew: true };
+};
