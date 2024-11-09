@@ -8,6 +8,7 @@ import {
   FieldSchemaResponse,
 } from "./schema.js";
 import { WebflowApiRequest } from "./webflow-utils.js";
+import { findCollectionByDisplayName } from "./utils.js";
 
 export const postBulkItems = async (
   collectionId: string,
@@ -25,6 +26,7 @@ export const postBulkItems = async (
     },
   });
 };
+
 interface getCollectionIdParams {
   siteId: string;
   webflowToken: string;
@@ -37,7 +39,7 @@ export const findOrCreateCollection = async ({
   collectionDisplayName = "better-faqs",
   collectionSingularName = "better-faq",
 }: getCollectionIdParams): Promise<{ id: string; isNew: boolean }> => {
-  const { collections } = collectionsResponseSchema.parse(
+  const collections = collectionsResponseSchema.parse(
     await WebflowApiRequest<{
       collections: CollectionsResponse;
     }>({
@@ -46,12 +48,11 @@ export const findOrCreateCollection = async ({
     })
   );
 
-  const faqCollection = collections.find(
-    (collection: { displayName: string }) =>
-      collection.displayName === collectionDisplayName
+  const existingCollection = findCollectionByDisplayName(
+    collections,
+    collectionDisplayName
   );
-  let collectionId = faqCollection ? faqCollection.id : null;
-  if (collectionId) return { id: collectionId, isNew: false };
+  if (existingCollection) return existingCollection;
 
   const newCollection = collectionSchema.parse(
     await WebflowApiRequest<CollectionResponse>({

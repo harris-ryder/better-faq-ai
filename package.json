@@ -1,11 +1,14 @@
 {
   "name": "webflow-faq",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "node --test dist/**/*.test.js",
     "build": "tsc",
-    "pretest": "npm run build"
+    "pretest": "npm run build",
+    "prestart": "npm test",
+    "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "",

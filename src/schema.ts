@@ -100,6 +100,7 @@ export type CollectionResponse = z.infer<typeof collectionSchema>;
 export type CollectionsResponse = z.infer<typeof collectionsResponseSchema>;
 export type SitesResponse = z.infer<typeof sitesResponseSchema>;
 export type PagesResponse = z.infer<typeof pagesResponseSchema>;
+export type PagesDomNodes = z.infer<typeof pagesDomNodesSchema>;
 export type WebflowPaginationResponse = z.infer<
   typeof webflowPaginationResponseSchema
 >;

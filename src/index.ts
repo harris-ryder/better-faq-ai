@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import {
   openAIFaqSchema,
   pagesDomNodesSchema,
+  PagesResponse,
   pagesResponseSchema,
   SitesResponse,
 } from "./schema.js";
@@ -12,6 +13,7 @@ import {
   getWebflowPaginationItems,
   WebflowApiRequest,
 } from "./webflow-utils.js";
+import { extractTextFromNodes } from "./utils.js";
 dotenv.config();
 
 const { WEBFLOW_TOKEN } = process.env;
@@ -31,7 +33,7 @@ const webflowToken = WEBFLOW_TOKEN as string;
   ).sites[0].id;
 
   const sitePages = pagesResponseSchema.parse(
-    await getWebflowPaginationItems({
+    await getWebflowPaginationItems<PagesResponse>({
       path: `/v2/sites/${siteId}/pages`,
       token: webflowToken,
       iterableObject: "pages",
@@ -55,10 +57,7 @@ const webflowToken = WEBFLOW_TOKEN as string;
   if (!collection.isNew) return;
 
   // Generate OpenAI faqs
-  const pagesText = lodash
-    .flattenDeep(pagesNodes)
-    .filter(({ type, text }) => type === "text")
-    .map(({ text }) => text!.text); // Err Feel a bit off wih this
+  const pagesText = extractTextFromNodes(pagesNodes);
 
   // Call OpenAI
   const { responses: validatedResponses } = openAIFaqSchema.parse(
