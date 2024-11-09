@@ -83,6 +83,10 @@ export const WebflowApiRequest = async <T>(
     }
     throw new Error(`HTTP ${response.status}: ${await response.text()}`);
   }
+  if (method === "DELETE") {
+    console.log("deleted items");
+    return "deleted items" as T;
+  }
   const results = await response.json();
   return results as T;
 };

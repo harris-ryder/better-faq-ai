@@ -45,6 +45,7 @@ const domNodeSchema = z.object({
     .optional(),
   attributes: z.record(z.any()).default({}),
 });
+const pageDomNodesSchema = z.array(domNodeSchema);
 export const pagesDomNodesSchema = z.array(z.array(domNodeSchema));
 
 // For `/v2/sites/${siteId}/collections`
@@ -94,6 +95,24 @@ export const openAIFaqSchema = z.object({
     })
   ),
 });
+
+// For Collection Items
+export const collectionItemSchema = z.object({
+  id: z.string(),
+  cmsLocaleId: z.string(),
+  lastPublished: z.null().or(z.string()),
+  lastUpdated: z.string(),
+  createdOn: z.string(),
+  isArchived: z.boolean(),
+  isDraft: z.boolean(),
+  fieldData: z.object({}),
+});
+
+export const collectionItemsResponseSchema = z.array(collectionItemSchema);
+
+export type collectionItemsResponse = z.infer<
+  typeof collectionItemsResponseSchema
+>;
 export type openAIFaqResponse = z.infer<typeof openAIFaqSchema>;
 export type FieldSchemaResponse = z.infer<typeof fieldSchema>;
 export type CollectionResponse = z.infer<typeof collectionSchema>;
@@ -101,6 +120,7 @@ export type CollectionsResponse = z.infer<typeof collectionsResponseSchema>;
 export type SitesResponse = z.infer<typeof sitesResponseSchema>;
 export type PagesResponse = z.infer<typeof pagesResponseSchema>;
 export type PagesDomNodes = z.infer<typeof pagesDomNodesSchema>;
+export type PageDomNodes = z.infer<typeof pageDomNodesSchema>;
 export type WebflowPaginationResponse = z.infer<
   typeof webflowPaginationResponseSchema
 >;
