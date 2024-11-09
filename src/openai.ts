@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import dotenv from "dotenv";
+import { openAIFaqResponse } from "./schema";
 dotenv.config();
 
 const { OPENAI_API_KEY } = process.env;
@@ -8,7 +9,9 @@ const openai = new OpenAI({
   apiKey,
 });
 
-export const openAIApiRequest = async (websiteText: string[]) => {
+export const openAIApiRequest = async (
+  websiteText: string[]
+): Promise<openAIFaqResponse> => {
   const {
     choices: [
       {

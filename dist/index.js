@@ -1,6 +1,8 @@
 import lodash from "lodash";
 import dotenv from "dotenv";
-import { getCollectionId, getWebflowPaginatiomItems, WebflowApiRequest, } from "./webflow-utils.js";
+import { getCollectionId, getWebflowPaginationItems, WebflowApiRequest, } from "./webflow-utils.js";
+import { openAIFaqSchema, pagesDomNodesSchema, pagesResponseSchema, sitesResponseSchema, } from "./schema.js";
+import { openAIApiRequest } from "./openai.js";
 dotenv.config();
 const { WEBFLOW_TOKEN } = process.env;
 const webflowToken = WEBFLOW_TOKEN;
@@ -10,55 +12,59 @@ const webflowToken = WEBFLOW_TOKEN;
 // Zod for schema
 // Write unit tests
 (async () => {
-    const { sites: [{ id: siteId }], } = await WebflowApiRequest({
+    /**
+     * List Sites -> Get First Site
+     */
+    const response = await WebflowApiRequest({
         path: `/v2/sites`,
         token: webflowToken,
     });
-    console.log({ siteId });
-    // List pages
-    const pages = await getWebflowPaginatiomItems({
+    // Extract first Site Id
+    const { sites: [{ id: siteId }], } = sitesResponseSchema.parse(response);
+    /**
+     * List Sites -> Get First Site -> Collect Site Pages
+     */
+    const pages = await getWebflowPaginationItems({
         path: `/v2/sites/${siteId}/pages`,
         token: webflowToken,
         iterableObject: "pages",
     });
-    console.log(pages.length);
-    // Get Dom nodes
-    const pagesDomNodes = await Promise.all(pages.map(async ({ id: pageId }) => await getWebflowPaginatiomItems({
+    let validatedPages = pagesResponseSchema.parse(pages);
+    console.log(validatedPages);
+    /**
+     * List Sites -> Get First Site -> Collect Site Pages -> Collect all Pages Dom Nodes
+     */
+    const pagesDomNodes = await Promise.all(pages.map(async ({ id: pageId }) => await getWebflowPaginationItems({
         path: `/v2/pages/${pageId}/dom`,
         token: webflowToken,
         iterableObject: "nodes",
     })));
-    // Get array of text extracted from dom nodes
+    let validatedPagesDomNodes = pagesDomNodesSchema.parse(pagesDomNodes);
+    /**
+     * List Sites -> Get First Site -> Collect Site Pages -> Collect all Pages Dom Nodes -> Extract Text Array
+     */
     const pagesText = lodash
-        .flattenDeep(pagesDomNodes)
-        .filter(({ type }) => type === "text")
-        .map(({ text: { text } }) => text);
-    console.log({ pagesText });
+        .flattenDeep(validatedPagesDomNodes)
+        .filter(({ type, text }) => type === "text")
+        .map(({ text }) => text.text); // Err Feel a bit off wih this
     const collection = await getCollectionId({ siteId, webflowToken });
     console.log({ collection });
-    // const { responses } = await openAIApiRequest(pagesText);
-    // console.log(responses);
-    // let counter = 0;
-    // for (const faq of responses) {
-    //   console.log(faq.question);
-    //   console.log(faq.answer);
-    //   await WebflowApiRequest<any>({
-    //     path: `/v2/collections/${newCollection.id}/items`,
-    //     token: webflowToken,
-    //     body: {
-    //       fieldData: {
-    //         name: faq.question,
-    //         question: faq.question,
-    //         answer: faq.answer,
-    //       },
-    //     },
-    //   });
-    //   console.log("---------------");
-    //   if (counter > 40) {
-    //     await new Promise((resolve) => setTimeout(resolve, 60000));
-    //     counter = 0;
-    //   }
-    //   counter++;
-    // }
+    // Don't create new list if collection already exists (for now)
+    if (!collection.isNew)
+        return;
+    const responses = await openAIApiRequest(pagesText);
+    const { responses: validatedResponses } = openAIFaqSchema.parse(responses);
+    console.log(validatedResponses);
+    const resp = await WebflowApiRequest({
+        path: `/v2/collections/${collection.id}/items/bulk`,
+        token: webflowToken,
+        body: {
+            fieldData: validatedResponses.map((response) => ({
+                name: response.question, // Using question as the name field
+                ...response, // Spread the rest of the response data
+            })),
+        },
+    });
+    console.log({ resp });
 })();
 //# sourceMappingURL=index.js.map
