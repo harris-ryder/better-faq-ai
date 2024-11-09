@@ -73,10 +73,17 @@ export const WebflowApiRequest = async <T>(
     },
   });
 
+  /**
+   * Webflow 60 req/min checker
+   */
   const rateLimitRemaining = parseInt(
     response.headers.get("x-ratelimit-remaining") || "0"
   );
   console.log(`Remaining rate limit: ${rateLimitRemaining}`);
+  if (rateLimitRemaining < 5) {
+    console.log("Close to rate limit, pausing for 60 seconds...");
+    await new Promise((resolve) => setTimeout(resolve, 60000));
+  }
 
   if (response.status >= 400) {
     if (response.status === 401) {

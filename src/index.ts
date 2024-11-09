@@ -1,18 +1,14 @@
 import lodash from "lodash";
 import dotenv from "dotenv";
-import {
-  getCollectionId,
-  getWebflowPaginationItems,
-  WebflowApiRequest,
-} from "./webflow-utils.js";
-import {
-  openAIFaqSchema,
-  pagesDomNodesSchema,
-  pagesResponseSchema,
-  SitesResponse,
-  sitesResponseSchema,
-} from "./schema.js";
+import { getCollectionId } from "./webflow-utils.js";
+import { openAIFaqSchema } from "./schema.js";
 import { openAIApiRequest } from "./openai.js";
+import {
+  getPagesNodes,
+  getSiteId,
+  getSitePages,
+  postBulkItems,
+} from "./api.js";
 dotenv.config();
 
 const { WEBFLOW_TOKEN } = process.env;
@@ -21,75 +17,26 @@ const webflowToken = WEBFLOW_TOKEN as string;
 // Rate limiter
 // Webhooks
 // Question: How to handle errors
-// Zod for schema
 // Write unit tests
 
 (async () => {
-  /**
-   * List Sites -> Get First Site
-   */
-  const response = await WebflowApiRequest<SitesResponse>({
-    path: `/v2/sites`,
-    token: webflowToken,
-  });
-  // Extract first Site Id
-  const {
-    sites: [{ id: siteId }],
-  } = sitesResponseSchema.parse(response);
+  const siteId = await getSiteId(webflowToken);
+  const sitePages = await getSitePages(siteId, webflowToken);
+  const pagesNodes = await getPagesNodes(sitePages, webflowToken);
 
-  /**
-   * List Sites -> Get First Site -> Collect Site Pages
-   */
-  const pages = await getWebflowPaginationItems({
-    path: `/v2/sites/${siteId}/pages`,
-    token: webflowToken,
-    iterableObject: "pages",
-  });
-  let validatedPages = pagesResponseSchema.parse(pages);
-  console.log(validatedPages);
+  // Early exit if an faq collection exists
+  const collection = await getCollectionId({ siteId, webflowToken });
+  if (!collection.isNew) return;
 
-  /**
-   * List Sites -> Get First Site -> Collect Site Pages -> Collect all Pages Dom Nodes
-   */
-  const pagesDomNodes = await Promise.all(
-    pages.map(
-      async ({ id: pageId }: any) =>
-        await getWebflowPaginationItems({
-          path: `/v2/pages/${pageId}/dom`,
-          token: webflowToken,
-          iterableObject: "nodes",
-        })
-    )
-  );
-  let validatedPagesDomNodes = pagesDomNodesSchema.parse(pagesDomNodes);
-
-  /**
-   * List Sites -> Get First Site -> Collect Site Pages -> Collect all Pages Dom Nodes -> Extract Text Array
-   */
+  // Generate OpenAI faqs
   const pagesText = lodash
-    .flattenDeep(validatedPagesDomNodes)
+    .flattenDeep(pagesNodes)
     .filter(({ type, text }) => type === "text")
     .map(({ text }) => text!.text); // Err Feel a bit off wih this
 
-  const collection = await getCollectionId({ siteId, webflowToken });
-  console.log({ collection });
-
-  // Don't create new list if collection already exists (for now)
-  if (!collection.isNew) return;
-
   const responses = await openAIApiRequest(pagesText);
   const { responses: validatedResponses } = openAIFaqSchema.parse(responses);
-  console.log(validatedResponses);
 
-  const resp = await WebflowApiRequest<any>({
-    path: `/v2/collections/${collection.id}/items/bulk`,
-    token: webflowToken,
-    body: {
-      fieldData: validatedResponses.map((response) => ({
-        name: response.question, // Using question as the name field
-        ...response, // Spread the rest of the response data
-      })),
-    },
-  });
-  console.log({ resp });
+  // Post AI Faqs to CMS
+  postBulkItems(collection.id, validatedResponses, webflowToken);
 })();
