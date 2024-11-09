@@ -1,56 +1,13 @@
+import { Webflow } from "webflow-api";
 import {
-  pagesDomNodesSchema,
-  PagesResponse,
-  pagesResponseSchema,
-  SitesResponse,
-  sitesResponseSchema,
+  CollectionResponse,
+  collectionSchema,
+  CollectionsResponse,
+  collectionsResponseSchema,
+  fieldSchema,
+  FieldSchemaResponse,
 } from "./schema.js";
-import {
-  getWebflowPaginationItems,
-  WebflowApiRequest,
-} from "./webflow-utils.js";
-
-export const getSiteId = async (webflowToken: string): Promise<string> => {
-  const response = await WebflowApiRequest<SitesResponse>({
-    path: `/v2/sites`,
-    token: webflowToken,
-  });
-  // Extract first Site Id
-  const {
-    sites: [{ id: siteId }],
-  } = sitesResponseSchema.parse(response);
-
-  return siteId;
-};
-
-export const getSitePages = async (
-  siteId: string,
-  webflowToken: string
-): Promise<PagesResponse> => {
-  const pages = await getWebflowPaginationItems({
-    path: `/v2/sites/${siteId}/pages`,
-    token: webflowToken,
-    iterableObject: "pages",
-  });
-  return pagesResponseSchema.parse(pages);
-};
-
-export const getPagesNodes = async (
-  sitePages: PagesResponse,
-  webflowToken: string
-) => {
-  const pagesDomNodes = await Promise.all(
-    sitePages.map(
-      async ({ id: pageId }: any) =>
-        await getWebflowPaginationItems({
-          path: `/v2/pages/${pageId}/dom`,
-          token: webflowToken,
-          iterableObject: "nodes",
-        })
-    )
-  );
-  return pagesDomNodesSchema.parse(pagesDomNodes);
-};
+import { WebflowApiRequest } from "./webflow-utils.js";
 
 export const postBulkItems = async (
   collectionId: string,
@@ -67,4 +24,69 @@ export const postBulkItems = async (
       })),
     },
   });
+};
+interface getCollectionIdParams {
+  siteId: string;
+  webflowToken: string;
+  collectionDisplayName?: string;
+  collectionSingularName?: string;
+}
+export const findOrCreateCollection = async ({
+  siteId,
+  webflowToken,
+  collectionDisplayName = "better-faqs",
+  collectionSingularName = "better-faq",
+}: getCollectionIdParams): Promise<{ id: string; isNew: boolean }> => {
+  const { collections } = collectionsResponseSchema.parse(
+    await WebflowApiRequest<{
+      collections: CollectionsResponse;
+    }>({
+      path: `/v2/sites/${siteId}/collections`,
+      token: webflowToken,
+    })
+  );
+
+  const faqCollection = collections.find(
+    (collection: { displayName: string }) =>
+      collection.displayName === collectionDisplayName
+  );
+  let collectionId = faqCollection ? faqCollection.id : null;
+  if (collectionId) return { id: collectionId, isNew: false };
+
+  const newCollection = collectionSchema.parse(
+    await WebflowApiRequest<CollectionResponse>({
+      path: `/v2/sites/${siteId}/collections`,
+      token: webflowToken,
+      body: {
+        displayName: collectionDisplayName,
+        singularName: collectionSingularName,
+      },
+    })
+  );
+
+  const questionField = fieldSchema.parse(
+    await WebflowApiRequest<FieldSchemaResponse>({
+      path: `/v2/collections/${newCollection.id}/fields`,
+      token: webflowToken,
+      body: {
+        type: Webflow.FieldType.PlainText,
+        displayName: "question",
+        isRequired: true,
+      },
+    })
+  );
+
+  const answerField = fieldSchema.parse(
+    await WebflowApiRequest<FieldSchemaResponse>({
+      path: `/v2/collections/${newCollection.id}/fields`,
+      token: webflowToken,
+      body: {
+        type: Webflow.FieldType.PlainText,
+        displayName: "answer",
+        isRequired: true,
+      },
+    })
+  );
+
+  return { id: newCollection.id, isNew: true };
 };

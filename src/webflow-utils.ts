@@ -5,12 +5,6 @@ import { Webflow } from "webflow-api";
 import {
   WebflowPaginationResponse,
   webflowPaginationResponseSchema,
-  collectionsSchema,
-  CollectionsResponse,
-  CollectionResponse,
-  collectionSchema,
-  FieldSchemaResponse,
-  fieldSchema,
 } from "./schema.js";
 dotenv.config();
 
@@ -55,8 +49,6 @@ interface WebflowApiRequestParams {
   body?: Record<string, unknown>;
 }
 
-// todo: use async.io queue to process one at a time per token (not global)
-// read x-ratelimit-remaining header and if is bellow e.g 5, pause for {retry-after} header secs
 export const WebflowApiRequest = async <T>(
   params: WebflowApiRequestParams
 ): Promise<T> => {
@@ -93,80 +85,4 @@ export const WebflowApiRequest = async <T>(
   }
   const results = await response.json();
   return results as T;
-};
-
-// this needs to be a function getCollectionId
-// if the collection doesn't exist, create it
-// return the id
-// note: always return early
-interface getCollectionIdParams {
-  siteId: string;
-  webflowToken: string;
-  collectionDisplayName?: string;
-  collectionSingularName?: string;
-}
-export const getCollectionId = async ({
-  siteId,
-  webflowToken,
-  collectionDisplayName = "better-faqs",
-  collectionSingularName = "better-faq",
-}: getCollectionIdParams): Promise<{ id: string; isNew: boolean }> => {
-  /**
-   * Grab collections for specific site -> Find "better-faqs" and return
-   */
-  const { collections } = await WebflowApiRequest<{
-    collections: CollectionsResponse;
-  }>({
-    path: `/v2/sites/${siteId}/collections`,
-    token: webflowToken,
-  });
-  const validatedCollections = collectionsSchema.parse(collections);
-
-  const faqCollection = validatedCollections.find(
-    (collection: { displayName: string }) =>
-      collection.displayName === collectionDisplayName
-  );
-
-  let collectionId = faqCollection ? faqCollection.id : null;
-
-  if (collectionId) return { id: collectionId, isNew: false };
-
-  /**
-   * If "better-faqs" doesn't exist then create it
-   */
-  const newCollection = await WebflowApiRequest<CollectionResponse>({
-    path: `/v2/sites/${siteId}/collections`,
-    token: webflowToken,
-    body: {
-      displayName: collectionDisplayName,
-      singularName: collectionSingularName,
-    },
-  });
-  const validatedNewCollection = collectionSchema.parse(newCollection);
-  collectionId = validatedNewCollection.id;
-
-  // todo: include this is in getcollection
-  const questionField = await WebflowApiRequest<FieldSchemaResponse>({
-    path: `/v2/collections/${newCollection.id}/fields`,
-    token: webflowToken,
-    body: {
-      type: Webflow.FieldType.PlainText,
-      displayName: "question",
-      isRequired: true,
-    },
-  });
-  const validatedQuestionField = fieldSchema.parse(questionField);
-
-  const answerField = await WebflowApiRequest<FieldSchemaResponse>({
-    path: `/v2/collections/${newCollection.id}/fields`,
-    token: webflowToken,
-    body: {
-      type: Webflow.FieldType.PlainText,
-      displayName: "answer",
-      isRequired: true,
-    },
-  });
-  const validatedAnswerField = fieldSchema.parse(answerField);
-
-  return { id: collectionId, isNew: true };
 };

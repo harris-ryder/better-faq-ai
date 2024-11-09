@@ -69,7 +69,9 @@ export const collectionSchema = z.object({
   fields: z.array(collectionFieldSchema).optional(),
 });
 
-export const collectionsSchema = z.array(collectionSchema);
+export const collectionsResponseSchema = z.object({
+  collections: z.array(collectionSchema),
+});
 
 // For  `/v2/collections/${newCollection.id}/fields`
 export const fieldSchema = z.object({
@@ -95,7 +97,7 @@ export const openAIFaqSchema = z.object({
 export type openAIFaqResponse = z.infer<typeof openAIFaqSchema>;
 export type FieldSchemaResponse = z.infer<typeof fieldSchema>;
 export type CollectionResponse = z.infer<typeof collectionSchema>;
-export type CollectionsResponse = z.infer<typeof collectionsSchema>;
+export type CollectionsResponse = z.infer<typeof collectionsResponseSchema>;
 export type SitesResponse = z.infer<typeof sitesResponseSchema>;
 export type PagesResponse = z.infer<typeof pagesResponseSchema>;
 export type WebflowPaginationResponse = z.infer<
