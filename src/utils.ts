@@ -14,6 +14,6 @@ export const findCollectionByDisplayName = (
 export const extractTextFromNodes = (nodes: PagesDomNodes): string[] => {
   return lodash
     .flattenDeep(nodes)
-    .filter(({ type, text }) => type === "text" && text)
-    .map(({ text }) => text!.text);
+    .filter(({ type, text }) => type === "text" && text?.text)
+    .map(({ text }) => text!.text!);
 };

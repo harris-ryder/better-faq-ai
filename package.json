@@ -15,15 +15,17 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/express": "^5.0.0",
     "@types/lodash": "^4.17.12",
     "typescript": "^5.6.3"
   },
   "dependencies": {
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
+    "express": "^4.21.1",
     "lodash": "^4.17.21",
     "openai": "^4.68.1",
     "webflow-api": "^2.4.2",
-    "zod": "^3.24.0-canary.20241016T212913"
+    "zod": "^3.23.8"
   }
 }

@@ -34,8 +34,8 @@ const domNodeSchema = z.object({
   type: z.string(),
   text: z
     .object({
-      html: z.string(),
-      text: z.string(),
+      html: z.string().nullable(),
+      text: z.string().nullable(),
     })
     .optional(),
   image: z
