@@ -18,14 +18,24 @@ import {
 } from "./webflow-utils.js";
 import { extractTextFromNodes } from "./utils.js";
 import express from "express";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 dotenv.config();
-
-const { WEBFLOW_TOKEN, AUTH_URL } = process.env;
-// const webflowToken = WEBFLOW_TOKEN as string;
-
+const { AUTH_URL } = process.env;
 const app = express();
 const port = 3000;
+
+// Set EJS as the view engine
+app.set("view engine", "ejs");
+app.set("views", join(__dirname, "..", "src", "views"));
+
+// Serve static files from 'public' directory
+app.use(express.static(join(__dirname, "public")));
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
@@ -79,8 +89,12 @@ app.get("/callback", async (req: any, res: any) => {
 
     const { access_token } = await tokenResponse.json();
     console.log("Successfully obtained access token:", access_token);
-    await generateCMS(access_token);
-    res.redirect("/dashboard");
+    const { faqs, siteDisplayName } = await generateCMS(access_token);
+    res.redirect(
+      `/dashboard?faqs=${encodeURIComponent(
+        JSON.stringify(faqs)
+      )}&siteDisplayName=${encodeURIComponent(JSON.stringify(siteDisplayName))}`
+    );
   } catch (error) {
     console.error("Error during OAuth process:", error);
     res
@@ -94,16 +108,27 @@ app.get("/callback", async (req: any, res: any) => {
 });
 
 app.get("/dashboard", async (req, res) => {
-  res.send("Welcome to your dashboard!");
+  const faqs = req.query.faqs
+    ? JSON.parse(decodeURIComponent(req.query.faqs as string))
+    : [];
+
+  const siteDisplayName = req.query.siteDisplayName
+    ? JSON.parse(decodeURIComponent(req.query.siteDisplayName as string))
+    : [];
+
+  res.render("dashboard", { faqs, siteDisplayName }); // Pass faqs as an object
 });
 
 const generateCMS = async (accessToken: string) => {
-  const siteId = sitesResponseSchema.parse(
+  const site = sitesResponseSchema.parse(
     await WebflowApiRequest<SitesResponse>({
       path: `/v2/sites`,
       token: accessToken,
     })
-  ).sites[0].id;
+  ).sites[0];
+
+  const siteId = site.id;
+  const siteDisplayName = site.displayName;
 
   const sitePages = pagesResponseSchema.parse(
     await getWebflowPaginationItems<PagesResponse>({
@@ -163,5 +188,7 @@ const generateCMS = async (accessToken: string) => {
   );
 
   // Post AI Faqs to CMS
-  postBulkItems(collection.id, validatedResponses, accessToken);
+  await postBulkItems(collection.id, validatedResponses, accessToken);
+
+  return { faqs: validatedResponses, siteDisplayName };
 };

@@ -3,6 +3,7 @@ import { z } from "zod";
 // For `/v2/sites/${siteId}/pages`
 export const siteSchema = z.object({
   id: z.string(),
+  displayName: z.string(),
 });
 
 export const sitesResponseSchema = z.object({
