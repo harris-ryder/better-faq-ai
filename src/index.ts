@@ -35,7 +35,7 @@ app.set("view engine", "ejs");
 app.set("views", join(__dirname, "..", "src", "views"));
 
 // Serve static files from 'public' directory
-app.use(express.static(join(__dirname, "public")));
+app.use(express.static(join(__dirname, "..", "public")));
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);

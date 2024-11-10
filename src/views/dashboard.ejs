@@ -4,88 +4,123 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Better Faqs AI - Dashboard</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
+    <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/images/favicon.ico" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#146ef6", // Main blue
+              accent: "#2E81FD", // Bright accent blue
+              secondary: "#666", // Secondary text gray
+              border: "#e0e0e0", // Border gray
+              "primary-light": "#e9f0fe", // Light blue background
+              "gray-light": "#efefef", // Light gray
+              background: "#f5f5f5", // Background gray
+              error: "#cf303b", // Error/danger red
+            },
+          },
+        },
+      };
+    </script>
     <style>
       html {
         scroll-behavior: smooth;
       }
+      .nav-item.active::after {
+        content: "";
+        position: absolute;
+        bottom: -1.5px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: black;
+      }
     </style>
   </head>
-  <body class="bg-gray-50 py-8 px-16">
+  <body>
+    <!-- Replace this nav element -->
     <nav
-      class="flex items-center gap-8 fixed top-0 left-0 right-0 px-16 py-4 bg-white/75 backdrop-blur-md z-50 border-b border-gray-200"
+      class="flex items-center gap-8 border-b border-border px-16 justify-between mb-4"
     >
-      <a
-        href="#"
-        class="flex items-center text-black text-2xl font-bold p-2 mr-auto rounded"
-      >
-        <i class="fas fa-question-circle mr-2"></i> Better Faq AI
-      </a>
-      <a
-        href="#results-table"
-        class="flex items-center text-black text-l p-2 rounded hover:bg-purple-50 transition-colors duration-300"
-      >
-        Results
-      </a>
-      <a
-        href="#how-to"
-        class="flex items-center text-black text-l p-2 rounded hover:bg-purple-50 transition-colors duration-300"
-      >
-        How to
-      </a>
-    </nav>
-    <div class="flex flex-col gap-2 items-center justify-center py-12 px-4">
-      <div
-        class="flex items-center justify-center text-purple-600 text-lg font-semibold p-3"
-      >
-        Curated FAQ's have been added to
+      <div class="flex items-center gap-2">
+        <img src="/images/logo.svg" alt="Better Faqs AI Logo" class="h-6" />
+        <h3 class="font-semibold text-lg text-primary">Better Faq AI</h3>
       </div>
-      <a
-        href="#"
-        class="text-4xl pb-6 font-bold text-purple-900 hover:text-purple-600 transition-colors duration-300 relative group"
+      <div class="flex gap-6 items-center">
+        <div
+          class="nav-item py-4 group text-sm cursor-pointer relative"
+          onclick="setActiveNav(this)"
+        >
+          <a href="#results" class="text-secondary group-hover:text-black">
+            results
+          </a>
+        </div>
+        <div
+          class="nav-item py-4 group text-sm cursor-pointer relative"
+          onclick="setActiveNav(this)"
+        >
+          <a
+            href="#implementation"
+            class="text-secondary group-hover:text-black"
+          >
+            Implementation
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div
+      class="flex gap-12 items-center justify-center py-4 px-4 border border-border rounded justify-between mx-16"
+    >
+      <div class="flex items-center gap-6 justify-start">
+        <div class="flex flex-col justify-start">
+          <div class="text-secondary text-sm">
+            Curated FAQ's have been added to
+          </div>
+          <a href="#" class="text-2xl font-semibold text-black relative group">
+            <%= siteDisplayName %>
+          </a>
+        </div>
+        <i class="fas fa-check-circle text-3xl text-primary"></i>
+      </div>
+      <button
+        class="flex items-center px-4 py-2 bg-primary text-sm text-white rounded-lg hover:bg-accent shadow"
       >
-        <%= siteDisplayName %>
-        <span
-          class="absolute bottom-0 left-0 w-0 h-1 bg-purple-600 transition-all duration-300 group-hover:w-full"
-        ></span>
-      </a>
-      <a
-        href="#"
-        class="flex items-center justify-center text-purple-600 text-lg font-semibold p-4 rounded-full bg-purple-50 hover:bg-purple-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
-      >
-        How do I display these on my website?
-        <i
-          class="fas fa-arrow-right ml-3 group-hover:ml-4 transition-all duration-300"
-        ></i>
-      </a>
+        How do I implement?<span class="fas fa-arrow-right ml-2" />
+      </button>
     </div>
-    <div class="bg-white rounded-lg shadow p-6" id="results-table">
+
+    <!-- Add the new table section -->
+    <div
+      class="bg-white rounded border border-border p-6 mx-16 mt-4"
+      id="results"
+    >
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
-            <tr class="text-left text-gray-500 border-b">
-              <th class="pb-3 pr-4">Question</th>
-              <th class="pb-3">Answer</th>
-              <th class="pb-3">Status</th>
+            <tr class="text-left border-b border-border">
+              <th class="pb-3 px-4 text-black text-sm">Question</th>
+              <th class="pb-3 px-4 text-black text-sm">Answer</th>
+              <th class="pb-3 px-4 text-black text-sm">Status</th>
             </tr>
           </thead>
           <tbody>
             <% faqs.forEach((faq, index) => { %>
             <tr
-              class="<%= index !== faqs.length - 1 ? 'border-b' : '' %> hover:bg-gray-50"
+              class="<%= index !== faqs.length - 1 ? 'border-b border-border' : '' %> hover:bg-primary-light"
             >
-              <td class="py-3"><%= faq.question %></td>
-              <td class="py-3"><%= faq.answer %></td>
-              <td>
+              <td class="py-3 px-4 text-sm"><%= faq.question %></td>
+              <td class="py-3 px-4 text-sm"><%= faq.answer %></td>
+              <td class="py-3 px-4">
                 <span
-                  class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                  class="px-2 py-1 bg-primary-light text-primary rounded-full text-sm"
                 >
                   Active
                 </span>
@@ -97,31 +132,36 @@
       </div>
     </div>
     <div
-      class="flex items-start justify-between bg-white rounded-lg shadow p-8 mt-6 gap-12"
+      class="mx-16 flex items-start justify-between bg-white rounded border border-border p-8 my-6 gap-12"
     >
-      <div class="flex-1 space-y-6" id="#how-to">
-        <a
-          href="#"
-          class="inline-flex items-center text-purple-600 text-lg font-semibold px-6 py-3 rounded-full bg-purple-50 hover:bg-purple-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
-        >
+      <div class="flex-1 space-y-6" id="implementation">
+        <h3 class="text-2xl font-semibold text-black">
           How to use your new FAQ's
-          <i class="fas fa-arrow-right ml-3 transition-all duration-300"></i>
-        </a>
+        </h3>
 
-        <ol class="list-decimal list-inside space-y-4 text-gray-700 ml-4">
-          <li class="text-lg font-medium">Go to webflow website builder</li>
-          <li class="text-lg font-medium">Open CMS on sidebar</li>
-          <li class="text-lg font-medium">Import CMS to a component</li>
+        <ol class="list-decimal list-inside space-y-4 text-secondary ml-4">
+          <li class="text-black text-sm">Go to webflow website builder</li>
+          <li class="text-black text-sm">Open CMS on sidebar</li>
+          <li class="text-black text-sm">Import CMS to a component</li>
         </ol>
       </div>
       <div class="flex-1">
         <img
           src="https://res.cloudinary.com/dx05xfyrq/image/upload/v1731240404/faqs_xrmlvy.gif"
           alt="Better FAQ AI Logo"
-          class="w-full rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300"
+          class="w-full rounded border border-border shadow-lg transform hover:scale-105 transition-all duration-300"
         />
       </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      function setActiveNav(element) {
+        // Remove active class from all nav items
+        document.querySelectorAll(".nav-item").forEach((item) => {
+          item.classList.remove("active");
+        });
+        // Add active class to clicked item
+        element.classList.add("active");
+      }
+    </script>
   </body>
 </html>
