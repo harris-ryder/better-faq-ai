@@ -42,6 +42,9 @@
         height: 2px;
         background-color: black;
       }
+      .nav-item.active .nav-link {
+        color: black;
+      }
     </style>
   </head>
   <body>
@@ -55,10 +58,13 @@
       </div>
       <div class="flex gap-6 items-center">
         <div
-          class="nav-item py-4 group text-sm cursor-pointer relative"
+          class="nav-item py-4 group text-sm cursor-pointer relative active"
           onclick="setActiveNav(this)"
         >
-          <a href="#results" class="text-secondary group-hover:text-black">
+          <a
+            href="#results"
+            class="text-secondary group-hover:text-black nav-link"
+          >
             results
           </a>
         </div>
@@ -68,7 +74,7 @@
         >
           <a
             href="#implementation"
-            class="text-secondary group-hover:text-black"
+            class="text-secondary group-hover:text-black nav-link"
           >
             Implementation
           </a>
@@ -139,10 +145,30 @@
           How to use your new FAQ's
         </h3>
 
-        <ol class="list-decimal list-inside space-y-4 text-secondary ml-4">
-          <li class="text-black text-sm">Go to webflow website builder</li>
-          <li class="text-black text-sm">Open CMS on sidebar</li>
-          <li class="text-black text-sm">Import CMS to a component</li>
+        <ol class="list-none space-y-4 text-secondary relative">
+          <li class="flex items-center gap-4">
+            <span
+              class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm"
+              >1</span
+            >
+            <span class="text-black text-sm"
+              >Go to webflow website builder</span
+            >
+          </li>
+          <li class="flex items-center gap-4">
+            <span
+              class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm"
+              >2</span
+            >
+            <span class="text-black text-sm">Open CMS on sidebar</span>
+          </li>
+          <li class="flex items-center gap-4">
+            <span
+              class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm"
+              >3</span
+            >
+            <span class="text-black text-sm">Import CMS to a component</span>
+          </li>
         </ol>
       </div>
       <div class="flex-1">

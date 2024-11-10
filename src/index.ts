@@ -45,6 +45,10 @@ app.get("/auth", (req, res) => {
   res.redirect(AUTH_URL as string);
 });
 
+app.get("/landing", (req, res) => {
+  res.render("landing", { authUrl: AUTH_URL as string });
+});
+
 // Endpoint to receive info from the callback URL
 app.get("/callback", async (req: any, res: any) => {
   const { code, state } = req.query;

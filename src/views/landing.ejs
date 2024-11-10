@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Better Faqs AI - Landing</title>
+    <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/images/favicon.ico" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#146ef6", // Main blue
+              accent: "#2E81FD", // Bright accent blue
+              secondary: "#666", // Secondary text gray
+              border: "#e0e0e0", // Border gray
+              "primary-light": "#e9f0fe", // Light blue background
+              "gray-light": "#efefef", // Light gray
+              background: "#f5f5f5", // Background gray
+              error: "#cf303b", // Error/danger red
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      .nav-item.active::after {
+        content: "";
+        position: absolute;
+        bottom: -1.5px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: black;
+      }
+      .nav-item.active .nav-link {
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Replace this nav element -->
+    <nav
+      class="flex items-center gap-8 border-b border-border px-16 justify-between mb-4"
+    >
+      <div class="flex items-center gap-2">
+        <img src="/images/logo.svg" alt="Better Faqs AI Logo" class="h-6" />
+        <h3 class="font-semibold text-lg text-primary">Better Faq AI</h3>
+      </div>
+      <div class="flex gap-6 items-center">
+        <div
+          class="nav-item py-4 group text-sm cursor-pointer relative active"
+          onclick="setActiveNav(this)"
+        >
+          <a
+            href="#results"
+            class="text-secondary group-hover:text-black nav-link"
+          >
+            Home
+          </a>
+        </div>
+        <div
+          class="nav-item py-4 group text-sm cursor-pointer relative"
+          onclick="setActiveNav(this)"
+        >
+          <a
+            href="#implementation"
+            class="text-secondary group-hover:text-black nav-link"
+          >
+            Help center
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div
+      class="flex gap-12 items-center justify-center py-4 px-4 justify-between mx-16"
+    >
+      <div class="flex flex-col gap-4 flex-[2]">
+        <h1 class="text-4xl font-semibold text-black">
+          Webflow FAQ's made easy
+        </h1>
+        <p class="text-2xl text-secondary">
+          AI-powered FAQ generation that understands your website and your
+          users.
+        </p>
+        <button
+          onclick="window.location.href='<%= authUrl %>'"
+          class="flex items-center px-4 py-2 bg-primary text-sm text-white rounded-lg hover:bg-accent shadow w-fit"
+        >
+          Try for free
+        </button>
+      </div>
+      <div class="flex-[3]">
+        <img
+          src="images/landing.png"
+          alt="Better FAQ AI Logo"
+          class="w-full rounded"
+        />
+      </div>
+    </div>
+
+    <script>
+      function setActiveNav(element) {
+        // Remove active class from all nav items
+        document.querySelectorAll(".nav-item").forEach((item) => {
+          item.classList.remove("active");
+        });
+        // Add active class to clicked item
+        element.classList.add("active");
+      }
+    </script>
+  </body>
+</html>
