@@ -45,6 +45,16 @@
       .nav-item.active .nav-link {
         color: black;
       }
+      .fade-in {
+        opacity: 0;
+        animation: fadeIn 2s forwards;
+      }
+
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+        }
+      }
     </style>
   </head>
   <body>
@@ -94,7 +104,7 @@
             <%= siteDisplayName %>
           </a>
         </div>
-        <i class="fas fa-check-circle text-3xl text-primary"></i>
+        <i class="fas fa-check-circle text-3xl text-primary fade-in"></i>
       </div>
       <button
         class="flex items-center px-4 py-2 bg-primary text-sm text-white rounded-lg hover:bg-accent shadow"

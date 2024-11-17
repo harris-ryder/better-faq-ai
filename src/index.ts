@@ -21,6 +21,9 @@ import express from "express";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
+// Fix cms items being for staging
+// Fix gif
+
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -92,13 +95,7 @@ app.get("/callback", async (req: any, res: any) => {
     }
 
     const { access_token } = await tokenResponse.json();
-    console.log("Successfully obtained access token:", access_token);
-    const { faqs, siteDisplayName } = await generateCMS(access_token);
-    res.redirect(
-      `/dashboard?faqs=${encodeURIComponent(
-        JSON.stringify(faqs)
-      )}&siteDisplayName=${encodeURIComponent(JSON.stringify(siteDisplayName))}`
-    );
+    res.redirect(`/loading?access_token=${access_token}`);
   } catch (error) {
     console.error("Error during OAuth process:", error);
     res
@@ -111,14 +108,30 @@ app.get("/callback", async (req: any, res: any) => {
   }
 });
 
-app.get("/dashboard", async (req, res) => {
-  const faqs = req.query.faqs
-    ? JSON.parse(decodeURIComponent(req.query.faqs as string))
-    : [];
+app.get("/loading", async (req: any, res: any) => {
+  const { access_token } = req.query;
+  res.render("loading", { access_token });
+});
 
-  const siteDisplayName = req.query.siteDisplayName
-    ? JSON.parse(decodeURIComponent(req.query.siteDisplayName as string))
-    : [];
+app.get("/dashboard", async (req, res) => {
+  const { access_token } = req.query;
+  console.log("access_token", access_token);
+  const { faqs, siteDisplayName } = await generateCMS(access_token as string);
+
+  // Redirect to dashboard after processing
+  // res.redirect(
+  //   `/dashboard?faqs=${encodeURIComponent(
+  //     JSON.stringify(faqs)
+  //   )}&siteDisplayName=${encodeURIComponent(JSON.stringify(siteDisplayName))}`
+  // );
+
+  // const faqs = req.query.faqs
+  //   ? JSON.parse(decodeURIComponent(req.query.faqs as string))
+  //   : [];
+
+  // const siteDisplayName = req.query.siteDisplayName
+  //   ? JSON.parse(decodeURIComponent(req.query.siteDisplayName as string))
+  //   : [];
 
   res.render("dashboard", { faqs, siteDisplayName }); // Pass faqs as an object
 });

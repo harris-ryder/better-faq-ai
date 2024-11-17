@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loading...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#146ef6", // Main blue
+              accent: "#2E81FD", // Bright accent blue
+              secondary: "#666", // Secondary text gray
+              border: "#e0e0e0", // Border gray
+              "primary-light": "#e9f0fe", // Light blue background
+              "gray-light": "#efefef", // Light gray
+              background: "#f5f5f5", // Background gray
+              error: "#cf303b", // Error/danger red
+            },
+          },
+        },
+      };
+    </script>
+
+    <script>
+      const accessToken = "<%= access_token %>";
+      setTimeout(() => {
+        window.location.href = `/dashboard?access_token=${encodeURIComponent(
+          accessToken
+        )}`;
+      }, 500);
+    </script>
+  </head>
+  <body class="flex flex-col items-center justify-center h-screen">
+    <img
+      src="/images/logo.svg"
+      alt="Better Faqs AI Logo"
+      class="h-20 animate-bounce mb-4"
+    />
+
+    <h1 class="text-3xl font-bold text-primary">Just doing some AI magic...</h1>
+  </body>
+</html>
