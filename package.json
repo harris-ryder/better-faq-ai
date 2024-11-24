@@ -7,8 +7,8 @@
     "test": "node --test dist/**/*.test.js",
     "build": "tsc",
     "pretest": "npm run build",
-    "prestart": "npm test",
-    "start": "node dist/index.js"
+    "prestart": "npm run build && npm test",
+    "start": "nodemon dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +17,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/lodash": "^4.17.12",
+    "nodemon": "^3.1.7",
     "typescript": "^5.6.3"
   },
   "dependencies": {

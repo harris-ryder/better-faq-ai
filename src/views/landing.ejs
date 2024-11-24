@@ -46,55 +46,52 @@
         color: black;
       }
 
-      .neon-button {
-        font-size: 0.2rem;
-        color: var(--clr-bg);
-        text-shadow: none;
-
-        display: inline-block;
-        cursor: pointer;
-        text-decoration: none;
-        color: var(--clr-neon);
-        border: var(--clr-neon) 0.125em solid;
-        width: 100%;
-        height: 1px;
-        border-radius: 0.25em;
-
-        text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
-
-        box-shadow: inset 0 0 0.5em 0 var(--clr-neon),
-          0 0 0.5em 0 var(--clr-neon);
-
-        position: relative;
+      .glow-effect {
+        box-shadow: 0 0 10px rgba(0, 26, 255, 0.7),
+          0 0 20px rgba(0, 26, 255, 0.5);
       }
 
-      .neon-button::before {
-        pointer-events: none;
-        content: "";
-        position: absolute;
-        background: var(--clr-neon);
-        top: 120%;
-        left: 0;
-        width: 100%;
-        height: 100%;
-
-        transform: perspective(1em) rotateX(40deg) scale(1, 0.35);
-        filter: blur(1em);
-        opacity: 1;
+      @keyframes scan-line {
+        0% {
+          transform: translateY(0);
+        }
+        25% {
+          transform: translateY(530px);
+        }
+        50% {
+          transform: translateY(0);
+        }
+        75% {
+          transform: translateY(0);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+      .scan-line {
+        animation: scan-line 6s infinite; /* Adjust duration for speed */
       }
 
-      .neon-button::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        box-shadow: 0 0 2em 0.5em var(--clr-neon);
-        background-color: var(--clr-neon);
-        z-index: -1;
-        transition: opacity 100ms linear;
-        opacity: 1;
+      @keyframes fadeOut {
+        0% {
+          opacity: 1;
+        }
+        25% {
+          opacity: 1;
+        }
+        75% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      .fade-out {
+        animation: fadeOut 6s infinite;
       }
     </style>
   </head>
@@ -151,13 +148,30 @@
           Try for free
         </button>
       </div>
-      <div class="flex-[3] relative">
-        <a href="#" class="neon-button">Neon</a>
+      <div class="flex-[2] relative border rounded-lg shadow-lg">
+        <div
+          class="w-full z-10 h-1 bg-primary rounded-full glow-effect scan-line absolute top-0 left-0"
+        ></div>
         <img
-          src="images/landing.png"
+          src="images/landing_bar.png"
           alt="Better FAQ AI Logo"
           class="w-full rounded"
         />
+        <div
+          class="relative w-full h-[500px] bg-primary overflow-y-scroll rounded-b-lg"
+          id="scrollable-div"
+        >
+          <div class="relative">
+            <img
+              src="images/landing_page.png"
+              alt="Better FAQ AI Logo"
+              class="w-full"
+            />
+            <div
+              class="w-full absolute bottom-0 h-[500px] bg-white fade-out"
+            ></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -170,6 +184,32 @@
         // Add active class to clicked item
         element.classList.add("active");
       }
+
+      function scrollToBottom() {
+        const scrollableDiv = document.getElementById("scrollable-div");
+        setTimeout(() => {
+          scrollableDiv.scrollTo({
+            top: scrollableDiv.scrollHeight,
+            behavior: "smooth",
+          });
+          scrollToTop();
+        }, 3000);
+      }
+
+      function scrollToTop() {
+        const scrollableDiv = document.getElementById("scrollable-div");
+        setTimeout(() => {
+          scrollableDiv.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+          scrollToBottom();
+        }, 3000);
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        scrollToBottom();
+      });
     </script>
   </body>
 </html>
