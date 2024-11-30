@@ -48,7 +48,7 @@ app.get("/auth", (req, res) => {
   res.redirect(AUTH_URL as string);
 });
 
-app.get("/landing", (req, res) => {
+app.get("/", (req, res) => {
   res.render("landing", { authUrl: AUTH_URL as string });
 });
 

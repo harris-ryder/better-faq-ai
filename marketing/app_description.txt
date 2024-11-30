@@ -1,0 +1,21 @@
+Discover Better Faq AI, the smarter way to manage your website’s FAQs in Webflow.
+
+**One-Click Setup**
+Get started effortlessly. With just one click, Better Faq AI analyzes your website’s data, generates relevant customer questions and answers, and saves them directly to your CMS under “betterfaqs.” No manual input required!
+
+**Webflow Integration**
+Better Faq AI seamlessly integrates with Webflow. By leveraging the Webflow API, it automatically creates and updates your FAQ content, making it feel like a natural extension of your design workflow.
+
+**AI-Powered Question Generation**
+Using advanced AI, Better Faq AI identifies the most relevant questions your customers might have, tailoring responses based on your site's data. Stay ahead of user needs with zero effort.
+
+**Manage with Ease**
+The intuitive dashboard lets you review, edit, and manage your FAQs with ease. Update questions, refine answers, and keep your site’s content fresh and accurate—all in one place.
+
+**Instant Results**
+Generate and display FAQs instantly. Better Faq AI works in real time, saving you hours of work and keeping your site dynamic and user-friendly.
+
+**Privacy First**
+We prioritize your data privacy. Your subscription supports the platform, not invasive data practices.
+
+Make your FAQs smarter with Better Faq AI.
