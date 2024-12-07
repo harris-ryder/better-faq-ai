@@ -15,13 +15,13 @@ const __dirname = dirname(__filename);
 dotenv.config();
 const { AUTH_URL } = process.env;
 const app = express();
-const port = 3000;
+const port = parseInt(process.env.PORT || "8080", 10);
 // Set EJS as the view engine
 app.set("view engine", "ejs");
 app.set("views", join(__dirname, "..", "src", "views"));
 // Serve static files from 'public' directory
 app.use(express.static(join(__dirname, "..", "public")));
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
     console.log(`Server is running at http://localhost:${port}`);
 });
 app.get("/auth", (req, res) => {
