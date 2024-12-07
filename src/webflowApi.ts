@@ -2,7 +2,6 @@ import { WEBFLOW_API_URL } from "./constants";
 import {
   WebflowPaginationResponse,
   webflowPaginationResponseSchema,
-  CollectionItemsResponse,
 } from "./schema";
 import { z } from "zod";
 
