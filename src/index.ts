@@ -79,7 +79,7 @@ app.get("/callback", async (req: any, res: any) => {
           grant_type: "authorization_code",
           redirect_URI: process.env.REDIRECT_URI?.trim(),
         }),
-      }
+      },
     );
 
     if (!tokenResponse.ok) {
@@ -90,7 +90,7 @@ app.get("/callback", async (req: any, res: any) => {
         body: errorData,
       });
       throw new Error(
-        `OAuth token request failed: ${tokenResponse.status} ${tokenResponse.statusText}`
+        `OAuth token request failed: ${tokenResponse.status} ${tokenResponse.statusText}`,
       );
     }
 
@@ -101,9 +101,8 @@ app.get("/callback", async (req: any, res: any) => {
     res
       .status(500)
       .send(
-        `OAuth Error: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
+        `OAuth Error: ${error instanceof Error ? error.message : "Unknown error"
+        }`,
       );
   }
 });
@@ -141,7 +140,7 @@ const generateCMS = async (accessToken: string) => {
     await WebflowApiRequest<SitesResponse>({
       path: `/v2/sites`,
       token: accessToken,
-    })
+    }),
   ).sites[0];
 
   const siteId = site.id;
@@ -152,7 +151,7 @@ const generateCMS = async (accessToken: string) => {
       path: `/v2/sites/${siteId}/pages`,
       token: accessToken,
       iterableObject: "pages",
-    })
+    }),
   );
 
   const pagesNodes = pagesDomNodesSchema.parse(
@@ -162,9 +161,9 @@ const generateCMS = async (accessToken: string) => {
           path: `/v2/pages/${pageId}/dom`,
           token: accessToken,
           iterableObject: "nodes",
-        })
-      )
-    )
+        }),
+      ),
+    ),
   );
 
   const collection = await findOrCreateCollection({
@@ -179,7 +178,7 @@ const generateCMS = async (accessToken: string) => {
         path: `/v2/collections/${collection.id}/items`,
         token: accessToken,
         iterableObject: "items",
-      })
+      }),
     );
 
     const collectionItemIds = collectionItems.map(({ id }) => {
@@ -201,7 +200,7 @@ const generateCMS = async (accessToken: string) => {
 
   // Call OpenAI
   const { responses: validatedResponses } = openAIFaqSchema.parse(
-    await openAIApiRequest(pagesText)
+    await openAIApiRequest(pagesText),
   );
 
   // Post AI Faqs to CMS
