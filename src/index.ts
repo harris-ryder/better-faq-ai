@@ -31,7 +31,7 @@ const __dirname = dirname(__filename);
 dotenv.config();
 const { AUTH_URL } = process.env;
 const app = express();
-const port = parseInt(process.env.PORT || "8080", 10);
+const port = 8080
 
 // Set EJS as the view engine
 app.set("view engine", "ejs");
@@ -40,7 +40,7 @@ app.set("views", join(__dirname, "..", "src", "views"));
 // Serve static files from 'public' directory
 app.use(express.static(join(__dirname, "..", "public")));
 
-app.listen(port, "0.0.0.0", () => {
+app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
 
@@ -101,8 +101,7 @@ app.get("/callback", async (req: any, res: any) => {
     res
       .status(500)
       .send(
-        `OAuth Error: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `OAuth Error: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
   }
