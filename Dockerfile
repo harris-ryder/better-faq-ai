@@ -24,9 +24,6 @@ RUN apt-get update -qq && \
 COPY package-lock.json package.json ./
 RUN npm ci --include=dev
 
-# Install TypeScript globally
-RUN npm install -g typescript
-
 # Copy application code
 COPY . .
 
@@ -44,5 +41,5 @@ FROM base
 COPY --from=build /app /app
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
+EXPOSE 8080 
 CMD [ "npm", "run", "start" ]
