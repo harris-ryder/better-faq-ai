@@ -24,6 +24,9 @@ RUN apt-get update -qq && \
 COPY package-lock.json package.json ./
 RUN npm ci --include=dev
 
+# Install TypeScript globally
+RUN npm install -g typescript
+
 # Copy application code
 COPY . .
 
