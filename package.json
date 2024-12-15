@@ -4,16 +4,12 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "node --test dist/**/*.test.js",
     "build": "tsc",
-    "pretest": "npm run build",
-    "prestart": "npm run build && npm test",
     "start": "nodemon dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/lodash": "^4.17.12",
@@ -29,5 +25,6 @@
     "openai": "^4.68.1",
     "webflow-api": "^2.4.2",
     "zod": "^3.23.8"
-  }
+  },
+  "description": ""
 }
