@@ -1,4 +1,4 @@
-import type { CollectionsResponse, PagesDomNodes } from "./schema.js";
+import type { CollectionsResponse, PagesDomNodes } from "./schema.ts";
 import lodash from "lodash";
 
 export const findCollectionByDisplayName = (

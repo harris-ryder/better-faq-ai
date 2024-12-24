@@ -1,22 +1,24 @@
 import dotenv from "dotenv";
-import {
+import type {
+  PageDomNodes,
+  PagesResponse,
+  SitesResponse,
   collectionItemsResponse,
+} from "./schema.ts";
+import {
   collectionItemsResponseSchema,
   openAIFaqSchema,
-  PageDomNodes,
   pagesDomNodesSchema,
-  PagesResponse,
   pagesResponseSchema,
-  SitesResponse,
   sitesResponseSchema,
-} from "./schema.js";
-import { openAIApiRequest } from "./openai.js";
-import { postBulkItems, findOrCreateCollection } from "./api.js";
+} from "./schema.ts";
+import { openAIApiRequest } from "./openai.ts";
+import { postBulkItems, findOrCreateCollection } from "./api.ts";
 import {
   getWebflowPaginationItems,
   WebflowApiRequest,
-} from "./webflow-utils.js";
-import { extractTextFromNodes } from "./utils.js";
+} from "./webflow-utils.ts";
+import { extractTextFromNodes } from "./utils.ts";
 import express from "express";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -101,8 +103,7 @@ app.get("/callback", async (req: any, res: any) => {
     res
       .status(500)
       .send(
-        `OAuth Error: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `OAuth Error: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
   }

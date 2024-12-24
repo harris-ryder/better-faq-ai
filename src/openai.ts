@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import dotenv from "dotenv";
-import { openAIFaqResponse } from "./schema";
+import type { openAIFaqResponse } from "./schema.ts";
 dotenv.config();
 
 const { OPENAI_API_KEY } = process.env;

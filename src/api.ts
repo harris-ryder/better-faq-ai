@@ -1,14 +1,16 @@
 import { Webflow } from "webflow-api";
-import {
+import type {
   CollectionResponse,
-  collectionSchema,
   CollectionsResponse,
+  FieldSchemaResponse,
+} from "./schema.ts";
+import {
+  collectionSchema,
   collectionsResponseSchema,
   fieldSchema,
-  FieldSchemaResponse,
-} from "./schema.js";
-import { WebflowApiRequest } from "./webflow-utils.js";
-import { findCollectionByDisplayName } from "./utils.js";
+} from "./schema.ts";
+import { WebflowApiRequest } from "./webflow-utils.ts";
+import { findCollectionByDisplayName } from "./utils.ts";
 
 export const postBulkItems = async (
   collectionId: string,
