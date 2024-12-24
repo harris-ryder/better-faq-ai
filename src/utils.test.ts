@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { findCollectionByDisplayName, extractTextFromNodes } from "./utils.js";
-import type { CollectionsResponse, PagesDomNodes } from "./schema.js";
+import { findCollectionByDisplayName, extractTextFromNodes } from "./utils.ts";
+import type { CollectionsResponse, PagesDomNodes } from "./schema.ts";
 
 describe("findCollectionByDisplayName", () => {
   it("should return collection id when display name matches", () => {

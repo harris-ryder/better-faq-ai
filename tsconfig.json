@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "ESNext", // Use ESNext to generate ESM output
+    "noEmit": true,
     "target": "ES2020", // Target modern JavaScript
     "moduleResolution": "node", // Resolve modules like Node.js
     "esModuleInterop": true, // Allow default imports from CommonJS modules
@@ -11,8 +12,14 @@
     "outDir": "./dist", // Output directory for compiled files
     "rootDir": "./src", // Specify the root directory of input files
     "allowSyntheticDefaultImports": true, // Allow default imports from modules with no default export
+    "allowImportingTsExtensions": true,
     "sourceMap": true // Generate source maps for easier debugging
   },
-  "include": ["src/**/*.ts"], // Include all TypeScript files in the 'src' directory
-  "exclude": ["node_modules", "dist"] // Exclude unnecessary folders
+  "include": [
+    "src/**/*.ts"
+  ], // Include all TypeScript files in the 'src' directory
+  "exclude": [
+    "node_modules",
+    "dist"
+  ] // Exclude unnecessary folders
 }

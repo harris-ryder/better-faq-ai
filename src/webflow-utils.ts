@@ -1,11 +1,12 @@
 import axios from "axios";
 import dotenv from "dotenv";
-import { WEBFLOW_API_URL } from "./constants.js";
+import { WEBFLOW_API_URL } from "./constants.ts";
 import { Webflow } from "webflow-api";
+import type { WebflowPaginationResponse } from './schema.ts'
 import {
-  WebflowPaginationResponse,
+
   webflowPaginationResponseSchema,
-} from "./schema.js";
+} from "./schema.ts";
 dotenv.config();
 
 // Recursively call site pages
