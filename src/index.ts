@@ -42,8 +42,10 @@ app.set("views", join(__dirname, "..", "src", "views"));
 // Serve static files from 'public' directory
 app.use(express.static(join(__dirname, "..", "public")));
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server is running on all interfaces:`);
+  console.log(`- Local:    http://localhost:${port}`);
+  console.log(`- Network:  http://0.0.0.0:${port}`);
 });
 
 app.get("/auth", (req, res) => {
