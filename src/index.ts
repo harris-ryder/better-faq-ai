@@ -1,3 +1,8 @@
+import React from "preact/compat";
+import render from "preact-render-to-string";
+import { h } from "preact";
+import { Layout } from "./views/layout.tsx";
+import { LandingPage } from "./views/LandingPage.tsx";
 import dotenv from "dotenv";
 import type {
   PageDomNodes,
@@ -22,6 +27,7 @@ import { extractTextFromNodes } from "./utils.ts";
 import express from "express";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import renderToString from "preact-render-to-string";
 
 // Fix cms items being for staging
 // Fix gif
@@ -33,7 +39,7 @@ const __dirname = dirname(__filename);
 dotenv.config();
 const { AUTH_URL } = process.env;
 const app = express();
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
 
 // Set EJS as the view engine
 app.set("view engine", "ejs");
@@ -42,7 +48,7 @@ app.set("views", join(__dirname, "..", "src", "views"));
 // Serve static files from 'public' directory
 app.use(express.static(join(__dirname, "..", "public")));
 
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`Server is running on all interfaces:`);
   console.log(`- Local:    http://localhost:${port}`);
   console.log(`- Network:  http://0.0.0.0:${port}`);
@@ -53,6 +59,13 @@ app.get("/auth", (req, res) => {
 });
 
 app.get("/", (req, res) => {
+  // res.render("landing", { authUrl: AUTH_URL as string });
+  const html = renderToString(h(LandingPage, null));
+  res.send(html);
+});
+
+app.get("/landing", (req, res) => {
+  // res.render("landing", { authUrl: AUTH_URL as string });
   res.render("landing", { authUrl: AUTH_URL as string });
 });
 
@@ -105,7 +118,8 @@ app.get("/callback", async (req: any, res: any) => {
     res
       .status(500)
       .send(
-        `OAuth Error: ${error instanceof Error ? error.message : "Unknown error"
+        `OAuth Error: ${
+          error instanceof Error ? error.message : "Unknown error"
         }`
       );
   }

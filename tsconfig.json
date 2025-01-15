@@ -13,7 +13,9 @@
     "rootDir": "./src", // Specify the root directory of input files
     "allowSyntheticDefaultImports": true, // Allow default imports from modules with no default export
     "allowImportingTsExtensions": true,
-    "sourceMap": true // Generate source maps for easier debugging
+    "sourceMap": true, // Generate source maps for easier debugging
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
   },
   "include": [
     "src/**/*.ts"
