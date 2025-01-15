@@ -30,7 +30,8 @@ export const LandingPage = () => {
             className="w-[40rem] aspect-auto"
           />
         </div>
-        <FounderMessageSection className="max-w-[80rem] flex flex-col gap-8 justify-center items-center py-24" />
+        <FounderMessageSection className="max-w-[1240px] flex flex-col gap-8 justify-center items-center py-24" />
+        <TestimonialsSection className="max-w-[1240px] justify-center pb-24" />
       </div>
     </Layout>
   );
@@ -158,7 +159,6 @@ export const FounderMessageSection: React.FC<{ className?: string }> = ({
       <h1 className="text-4xl font-bold text-center text-foreground">
         Speed up development.
       </h1>
-
       <div className="max-w-3xl text-center text-gray-600">
         <p>
           BetterFaqAI is a Webflow app that analyzes your website to generate
@@ -179,6 +179,60 @@ export const FounderMessageSection: React.FC<{ className?: string }> = ({
             Creator of BetterFaqAI
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+export const TestimonialsSection: React.FC<{ className?: string }> = ({
+  className,
+}) => {
+  const testimonials = [
+    {
+      name: "Sarah Chen",
+      role: "Marketing Director at TechFlow",
+      avatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Sarah",
+      text: "BetterFaqAI has transformed how we handle customer questions. The AI-generated FAQs are surprisingly accurate and saved our team countless hours of work. The Webflow integration is seamless!",
+    },
+    {
+      name: "Marcus Rodriguez",
+      role: "Founder of DigitalFirst",
+      avatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Marcus",
+      text: "I was skeptical about AI-generated FAQs, but the quality exceeded my expectations. It picked up on nuances in our content that I wouldn't have thought to address. Definitely worth the investment.",
+    },
+    {
+      name: "Emma Thompson",
+      role: "Product Manager at CloudScale",
+      avatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Emma",
+      text: "The speed and accuracy of BetterFaqAI is impressive. We updated our entire product line's FAQs in minutes instead of days. The AI understands context really well and generates relevant questions our customers actually ask.",
+    },
+  ];
+
+  return (
+    <div className={className}>
+      <div className=" grid grid-cols-1 md:grid-cols-3 gap-8">
+        {testimonials.map((testimonial) => (
+          <div
+            key={testimonial.name}
+            className="flex flex-col gap-4 justify-left bg-background rounded-md p-6 border border-border"
+          >
+            <div className="flex gap-4">
+              <img
+                src={testimonial.avatar}
+                className="rounded-full w-14 h-14 border border-foreground"
+              />
+              <div className="flex flex-col gap-0 text-foreground justify-center items-left">
+                <div className="font-bold text-foreground">
+                  {testimonial.name}
+                </div>
+                <div className="text-foreground-weak text-xs">
+                  {testimonial.role}
+                </div>
+              </div>
+            </div>
+            <p className="text-gray-600">{testimonial.text}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
