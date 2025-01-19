@@ -13,6 +13,14 @@ export const Layout: React.FC<{
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
         />
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <script>
+          {`
+            document.addEventListener('DOMContentLoaded', function() {
+              lucide.createIcons();
+            });
+          `}
+        </script>
         <link
           rel="icon"
           type="image/svg+xml"
@@ -37,7 +45,10 @@ export const Layout: React.FC<{
                     foreground:  "#0F172A",
                     "foreground-weak":  "#334155",
                     secondary: "#666",
+                    "secondary-weak": "#CBD5E1",
+                    "secondary-border": "c9c9c9",
                     border: "#E7E7E9",
+
                     "primary-light": "#e9f0fe",
                     "gray-light": "#efefef",
                     background: "#f5f5f5",
@@ -54,7 +65,7 @@ export const Layout: React.FC<{
         />
       </head>
       <Background />
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col items-center">
         {header}
         <main className="flex-grow">{children}</main>
         <Footer />
@@ -98,30 +109,35 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Background: React.FC = () => {
   return (
-    <svg
-      preserveAspectRatio="none"
-      width="650"
-      height="500"
-      className="w-full h-full fixed inset-0"
-    >
-      <filter id="roughpaper" x="0%" y="0%" width="100%" height="100%">
-        <feTurbulence baseFrequency="0.04" result="noise" />
-
-        <feDiffuseLighting in="noise" lighting-color="white" surfaceScale="2">
-          <feDistantLight azimuth="45" elevation="60" />
-        </feDiffuseLighting>
-      </filter>
-
-      <rect
-        x="0"
-        y="0"
-        width="100%"
-        height="100%"
-        filter="url(#roughpaper)"
-        fill="none"
-        opacity="0.15"
+    <>
+      <svg
+        className="fixed inset-0 w-full h-full opacity-10"
+        viewBox="0 0 1 1"
+        xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="none"
+      >
+        <filter id="noiseFilter">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.8"
+            numOctaves="4"
+            stitchTiles="stitch"
+          />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#noiseFilter)" />
+      </svg>
+      <div
+        className="fixed inset-0 w-full h-full -z-10"
+        style={{
+          background: `
+          linear-gradient(80deg, rgba(37,99,235,0.08), rgba(59,130,246,0.15))
+        `,
+          backgroundSize: "100% 100%",
+          filter: "contrast(110%) brightness(120%)",
+        }}
       />
-    </svg>
+      <div className="fixed inset-0 bg-gradient-to-b from-transparent to-background opacity-90" />
+    </>
   );
 };
 
@@ -134,8 +150,10 @@ export const Button: React.FC<ButtonProps> = ({
   const baseStyles =
     "rounded-lg px-6 py-2 font-medium text-sm transition-colors";
   const variantStyles = {
-    primary: "bg-primary text-white hover:bg-accent",
-    secondary: "border border-border text-secondary hover:bg-gray-50",
+    primary:
+      "bg-primary border border-primary text-white hover:bg-accent hover:border-accent",
+    secondary:
+      "border border-secondary-border text-secondary bg-secondary/10 hover:bg-white/30",
   };
 
   return (

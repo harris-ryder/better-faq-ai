@@ -32,6 +32,8 @@ export const LandingPage = () => {
         </div>
         <FounderMessageSection className="max-w-[1240px] flex flex-col gap-8 justify-center items-center py-24" />
         <TestimonialsSection className="max-w-[1240px] justify-center pb-24" />
+        <SeamlessIntegrationSection />
+        <FullControlSection />
       </div>
     </Layout>
   );
@@ -87,7 +89,7 @@ export const AnimatedTwoWayArrow: React.FC = () => {
 
 export const AnimatedFaqList: React.FC = () => {
   return (
-    <div className="w-[24rem] h-[24rem] border border-border rounded-xl overflow-y-auto flex flex-col gap-2 p-2">
+    <div className="w-[24rem] h-[24rem] border border-secondary-border rounded-xl overflow-y-auto flex flex-col gap-2 p-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -116,7 +118,7 @@ export const AnimatedFaqList: React.FC = () => {
       ].map((question, index) => (
         <div
           key={question}
-          className="bg-background border border-border text-foreground-weak rounded-lg p-2 flex justify-between items-center fade-in"
+          className="bg-background/50 border border-secondary-border text-foreground-weak rounded-lg p-2 flex justify-between items-center fade-in"
           style={{ animationDelay: `${index * 0.3}s` }}
         >
           {question}
@@ -140,10 +142,10 @@ export const Header: React.FC = () => {
           Better Faqs AI
         </div>
         <div className="flex gap-8 text-sm font-semibold text-foreground-weak items-center">
-          <a className="hover:text-primary cursor-pointer">Docs</a>
-          <a className="hover:text-primary cursor-pointer">Blog</a>
-          <a className="hover:text-primary cursor-pointer">Showcase</a>
-          <div className="border-l border-border h-full py-1"></div>
+          <a className="hover:text-accent cursor-pointer">Docs</a>
+          <a className="hover:text-accent cursor-pointer">Blog</a>
+          <a className="hover:text-accent cursor-pointer">Showcase</a>
+          <div className="border-l border-foreground-weak h-[90%] py-1"></div>
           <Button>Try now</Button>
         </div>
       </div>
@@ -171,7 +173,7 @@ export const FounderMessageSection: React.FC<{ className?: string }> = ({
       <div className="flex gap-4">
         <img
           src="https://api.dicebear.com/9.x/notionists/svg?seed=Midnight"
-          className="rounded-full w-14 h-14 border border-foreground"
+          className="rounded-full w-14 h-14 border border-foreground-weak"
         />
         <div className="flex flex-col gap-0 text-foreground justify-center items-left">
           <div className="font-bold text-foreground">Florian Herrengt</div>
@@ -210,11 +212,11 @@ export const TestimonialsSection: React.FC<{ className?: string }> = ({
 
   return (
     <div className={className}>
-      <div className=" grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-transparent">
         {testimonials.map((testimonial) => (
           <div
             key={testimonial.name}
-            className="flex flex-col gap-4 justify-left bg-background rounded-md p-6 border border-border"
+            className="flex flex-col gap-4 justify-left bg-background/20 rounded-xl p-6 border border-secondary-border"
           >
             <div className="flex gap-4">
               <img
@@ -233,6 +235,145 @@ export const TestimonialsSection: React.FC<{ className?: string }> = ({
             <p className="text-gray-600">{testimonial.text}</p>
           </div>
         ))}
+      </div>
+    </div>
+  );
+};
+
+const SeamlessIntegrationSection: React.FC = () => {
+  return (
+    <div className="w-[1240px] flex flex-col gap-8 justify-start items-start">
+      <div className="max-w-3xl text-left flex flex-col items-left text-gray-600 gap-9">
+        <div className="flex justify-center items-center rounded-md full border border-2 border-primary w-12 h-12">
+          <i data-lucide="pencil-ruler" className="w-8 h-8 text-primary"></i>
+        </div>
+        <div className="flex flex-col gap-4">
+          <p className="text-primary font-bold">Seamless</p>
+          <h1 className="text-4xl font-bold text-foreground">
+            A seamless integration.
+          </h1>
+          <p className="text-secondary">
+            No steps or configuaration needed, we read your website and give you
+            an a list of FAQ's instantly, saved directly to your website. You
+            can edit the messages via our page or directly in webflow.
+          </p>
+        </div>
+        <Button variant="primary" className="w-fit !px-4">
+          Learn More
+        </Button>
+        <div className="flex gap-12 justify-start">
+          <div className="flex flex-col gap-4 items-center">
+            <i
+              data-lucide="zap"
+              className="w-8 h-8 text-secondary-border"
+              stroke-width="1.5"
+            ></i>
+            <p className="text-secondary-border text-sm font-medium">Fast</p>
+          </div>
+          <div className="flex flex-col gap-4 items-center">
+            <i
+              data-lucide="puzzle"
+              className="w-8 h-8 text-secondary-border"
+              stroke-width="1.5"
+            ></i>
+            <p className="text-secondary-border text-sm font-medium">
+              Seamless
+            </p>
+          </div>
+          <div className="flex flex-col gap-4 items-center">
+            <i
+              data-lucide="target"
+              className="w-8 h-8 text-secondary-border"
+              stroke-width="1.5"
+            ></i>
+            <p className="text-secondary-border text-sm font-medium">
+              Relevant
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative w-screen left-[50%] right-[50%] ml-[-50vw] mr-[-50vw]">
+        <div className="absolute inset-0 top-[2rem] -z-10">
+          <div className="w-full h-full bg-[linear-gradient(90deg,theme(colors.secondary-weak)_1px,transparent_0),linear-gradient(theme(colors.secondary-weak)_1px,transparent_0)] bg-[size:24px_24px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent " />
+        </div>
+
+        <img
+          src="/images/webflow-cms.png"
+          alt="Landing illustration"
+          className="w-1/2 h-auto mx-auto z-20"
+        />
+      </div>
+    </div>
+  );
+};
+
+const FullControlSection: React.FC = () => {
+  return (
+    <div className="mt-24 w-[1240px] flex flex-col gap-8 justify-start items-start">
+      <div className="max-w-3xl text-left flex flex-col items-left text-gray-600 gap-9">
+        <div className="flex justify-center items-center rounded-md full border border-2 border-primary w-12 h-12">
+          <i
+            data-lucide="sliders-horizontal"
+            className="w-8 h-8 text-primary"
+          ></i>
+        </div>
+        <div className="flex flex-col gap-4">
+          <p className="text-primary font-bold">Control</p>
+          <h1 className="text-4xl font-bold text-foreground">Full Control.</h1>
+          <p className="text-secondary">
+            All the data is yours and sent straight to your Webflow cms, we
+            store none of it! You can select and remove the generated FAQs on
+            our website or directly in your Webflow editor
+          </p>
+        </div>
+        <Button variant="primary" className="w-fit !px-4">
+          Learn More
+        </Button>
+        <div className="flex gap-12 justify-start">
+          <div className="flex flex-col gap-4 items-center">
+            <i
+              data-lucide="zap"
+              className="w-8 h-8 text-secondary-border"
+              stroke-width="1.5"
+            ></i>
+            <p className="text-secondary-border text-sm font-medium">Fast</p>
+          </div>
+          <div className="flex flex-col gap-4 items-center">
+            <i
+              data-lucide="puzzle"
+              className="w-8 h-8 text-secondary-border"
+              stroke-width="1.5"
+            ></i>
+            <p className="text-secondary-border text-sm font-medium">
+              Seamless
+            </p>
+          </div>
+          <div className="flex flex-col gap-4 items-center">
+            <i
+              data-lucide="target"
+              className="w-8 h-8 text-secondary-border"
+              stroke-width="1.5"
+            ></i>
+            <p className="text-secondary-border text-sm font-medium">
+              Relevant
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative w-screen left-[50%] right-[50%] ml-[-50vw] mr-[-50vw]">
+        <div className="absolute inset-0 top-[2rem] -z-10">
+          <div className="w-full h-full bg-[linear-gradient(90deg,theme(colors.secondary-weak)_1px,transparent_0),linear-gradient(theme(colors.secondary-weak)_1px,transparent_0)] bg-[size:24px_24px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent " />
+        </div>
+
+        <img
+          src="images/landing_img_1.png"
+          alt="Landing illustration"
+          className="w-1/3 h-auto mx-auto z-20"
+        />
       </div>
     </div>
   );
